@@ -1,0 +1,1 @@
+"""ShonarTalent AI — backend package (FastAPI, eligibility, models)."""

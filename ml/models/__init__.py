@@ -1,0 +1,1 @@
+"""Vector similarity models (FR-3.2 k-NN / cosine)."""

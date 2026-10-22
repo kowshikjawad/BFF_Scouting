@@ -1,0 +1,14 @@
+# Local orchestration for ShonarTalent AI (NFR-port).
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: development
+      DATABASE_URL: sqlite:///./data/processed/shonartalent.db
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped

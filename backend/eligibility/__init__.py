@@ -1,0 +1,1 @@
+"""FIFA heritage eligibility rules engine (FR-2)."""
