@@ -8,7 +8,7 @@ fabricated default.
 """
 from __future__ import annotations
 
-from sqlalchemy import Float, Integer, String
+from sqlalchemy import Float, Integer, String, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from backend.models.db import Base
@@ -75,3 +75,51 @@ def get_player(session: Session, player_id: str) -> dict[str, object] | None:
     if record is None:
         return None
     return {column.name: getattr(record, column.name) for column in PlayerORM.__table__.columns}
+
+
+_DIASPORA_ELIGIBLE_STATUS = "ELIGIBLE & CLEARED"  # backend.eligibility.engine.Status.ELIGIBLE.value
+
+
+def list_players(
+    session: Session,
+    *,
+    max_age: int | None = None,
+    position: str | None = None,
+    strong_foot: str | None = None,
+    max_value_eur: float | None = None,
+    diaspora_eligible: bool | None = None,
+) -> list[dict[str, object]]:
+    """List stored players matching every supplied filter (FR-4.2).
+
+    An omitted filter does not constrain the result. `max_age` excludes
+    players with no recorded age -- an absent age can't be known to
+    satisfy a maximum (see design.md decision #3). `diaspora_eligible` is
+    derived from `ancestry_eligibility` since there is no separate stored
+    boolean (design.md decision #2).
+    """
+    query = select(PlayerORM)
+
+    if max_age is not None:
+        query = query.where(PlayerORM.age.isnot(None), PlayerORM.age <= max_age)
+    if position is not None:
+        query = query.where(PlayerORM.position == position)
+    if strong_foot is not None:
+        query = query.where(PlayerORM.strong_foot == strong_foot)
+    if max_value_eur is not None:
+        query = query.where(
+            PlayerORM.estimated_value_eur.isnot(None),
+            PlayerORM.estimated_value_eur <= max_value_eur,
+        )
+    if diaspora_eligible is True:
+        query = query.where(PlayerORM.ancestry_eligibility == _DIASPORA_ELIGIBLE_STATUS)
+    elif diaspora_eligible is False:
+        query = query.where(
+            (PlayerORM.ancestry_eligibility != _DIASPORA_ELIGIBLE_STATUS)
+            | (PlayerORM.ancestry_eligibility.is_(None))
+        )
+
+    records = session.execute(query).scalars().all()
+    return [
+        {column.name: getattr(record, column.name) for column in PlayerORM.__table__.columns}
+        for record in records
+    ]

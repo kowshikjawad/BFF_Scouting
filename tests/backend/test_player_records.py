@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from backend.models.db import Base
-from backend.models.player_records import PlayerORM, get_player, upsert_player
+from backend.models.player_records import PlayerORM, get_player, list_players, upsert_player
 
 
 @pytest.fixture()
@@ -105,3 +105,45 @@ def test_upsert_updates_only_the_supplied_fields(session: Session):
 def test_upsert_rejects_unknown_fields(session: Session):
     with pytest.raises(ValueError):
         upsert_player(session, "p1", not_a_real_field=True)
+
+
+def _seed_search_fixture(session: Session) -> None:
+    upsert_player(
+        session, "young-lb", name="Young Left Back", age=19, position="LB",
+        strong_foot="Left", estimated_value_eur=500_000, ancestry_eligibility="ELIGIBLE & CLEARED",
+    )
+    upsert_player(
+        session, "old-st", name="Veteran Striker", age=32, position="ST",
+        strong_foot="Right", estimated_value_eur=2_000_000, ancestry_eligibility="DOCUMENTATION REQUIRED",
+    )
+    upsert_player(session, "no-age", name="No Age On Record", position="CB")
+    session.commit()
+
+
+def test_list_players_with_no_filters_returns_everyone(session: Session):
+    _seed_search_fixture(session)
+    assert {p["id"] for p in list_players(session)} == {"young-lb", "old-st", "no-age"}
+
+
+def test_list_players_max_age_excludes_unset_ages(session: Session):
+    _seed_search_fixture(session)
+    results = list_players(session, max_age=25)
+    assert {p["id"] for p in results} == {"young-lb"}
+
+
+def test_list_players_combined_filters_are_anded(session: Session):
+    _seed_search_fixture(session)
+    results = list_players(session, position="ST", strong_foot="Right")
+    assert {p["id"] for p in results} == {"old-st"}
+
+    results = list_players(session, position="ST", strong_foot="Left")
+    assert results == []
+
+
+def test_list_players_diaspora_eligible_filter(session: Session):
+    _seed_search_fixture(session)
+    eligible = list_players(session, diaspora_eligible=True)
+    assert {p["id"] for p in eligible} == {"young-lb"}
+
+    not_eligible = list_players(session, diaspora_eligible=False)
+    assert {p["id"] for p in not_eligible} == {"old-st", "no-age"}

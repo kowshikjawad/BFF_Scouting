@@ -40,3 +40,9 @@ def session_scope() -> Iterator[Session]:
         raise
     finally:
         session.close()
+
+
+def get_session() -> Iterator[Session]:
+    """FastAPI dependency yielding a request-scoped session via `session_scope`."""
+    with session_scope() as session:
+        yield session
