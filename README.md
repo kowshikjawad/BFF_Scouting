@@ -14,8 +14,8 @@
   <a href="https://fastapi.tiangolo.com/">
     <img src="https://img.shields.io/badge/FastAPI-0.110+-teal?style=for-the-badge" alt="FastAPI"/>
   </a>
-  <a href="https://scikit-learn.org/">
-    <img src="https://img.shields.io/badge/ML-scikit--learn-orange?style=for-the-badge" alt="scikit-learn"/>
+  <a href="https://react.dev/">
+    <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React"/>
   </a>
 </p>
 
@@ -39,25 +39,28 @@ Bangladeshi football clubs (Bashundhara Kings, Abahani Limited, Fortis FC) and t
 
 ## 💡 Our Solution
 
-A **lightweight, full-stack data pipeline** that:
+A **full-stack data pipeline and scouting dashboard** that:
 
-1. **Aggregates** player data from BPL + global diaspora sources into one searchable database
-2. **Matches talent** using ML (Vector Similarity / k-NN) to surface domestic players who match tactical profiles from higher-tier leagues
-3. **Validates eligibility** — automatically evaluates FIFA national-team eligibility (ancestry, passport, residency)
+1. **Aggregates** player data from the Bangladesh Football League (BFL) and a maintained global diaspora reference set into one searchable database
+2. **Matches talent** using ML (z-score normalization + cosine k-NN) to surface players with comparable tactical profiles
+3. **Validates eligibility** — evaluates FIFA national-team eligibility under Statutes Art. 6, 7, and 8 (genuine link / residency / one-time association switch)
+4. **Visualizes it all** in a dedicated web dashboard — search/filter, player profiles with radar charts, similarity results, and one-page PDF scout summaries
 
-> 📖 Full product specification: [`PRD.md`](PRD.md)
+> 📖 Full product specification: [`PRD.md`](PRD.md) · Behavior contracts: [`openspec/specs/`](openspec/specs/)
 
 ---
 
-## ✨️ Features
+## ✨ Features
 
 | Module | What It Does | Status |
 |:--|:--|:--:|
-| **🌍 Global Diaspora Database** | Scrape BPL squads + FBref stats + diaspora listings into structured player profiles | 🏗️ Sprint 1 |
-| **⚖️ FIFA Eligibility Engine** | Rule-based evaluation using FIFA Art. 6 & 7 → `ELIGIBLE & CLEARED`, `DOCUMENTATION REQUIRED`, or `INELIGIBLE` | ✅ Live |
-| **🧠 Tactical Similarity Engine** | z-score normalization + cosine k-NN matching (Goals/90, Key Passes/90, Tackles Won/90, Aerial Duel %) | ✅ Live |
-| **📊 Scouting Dashboard** | Interactive radar charts, filterable search, 1-page PDF scout reports | 🏗️ Sprint 4 |
-| **🔌 RESTful API** | Multi-variable search (age, position, foot, value, eligibility) — all via FastAPI | 🏗️ Sprint 3 |
+| **🌍 Data Ingestion** | Scrapes BFL squads (Wikipedia, with football/cricket source disambiguation), FBref tactical stats (for tracked players in FBref's 9 covered competitions), and a maintained diaspora reference set | ✅ Live |
+| **⚖️ FIFA Eligibility Engine** | Rule-based evaluation of Art. 6 (dual national, 2yr residency), Art. 7 (new nationality, 5yr post-18 residency), and Art. 8 (one-time association switch) → `ELIGIBLE & CLEARED`, `DOCUMENTATION REQUIRED`, or `INELIGIBLE` | ✅ Live |
+| **🧠 Tactical Similarity Engine** | z-score normalization + cosine k-NN matching over 5 per-90 metrics (Goals, Key Passes, Progressive Carries, Tackles Won, Aerial Duel %) | ✅ Live |
+| **🔌 RESTful API** | Player search/detail/similarity/eligibility, all via FastAPI with auto-generated OpenAPI docs | ✅ Live |
+| **📊 Scouting Dashboard** | React web app: filterable search, player profiles with tactical radar charts, similarity results, an eligibility checker form, and 1-page PDF export | ✅ Live |
+
+A live run of the scrapers (as of this writing) populates **113 real players** (6 diaspora + 107 domestic) into the local database.
 
 ---
 
@@ -65,24 +68,25 @@ A **lightweight, full-stack data pipeline** that:
 
 ```
   [External Data Sources]
-    (Transfermarkt / FBref / News)
+    (Wikipedia BFL squad pages / FBref / maintained diaspora reference set)
                │
                ▼
-    [• BPL Squad Scraper]     [• FBref Scraper]     [• Diaspora Scraper]
+    [• BFL Squad Scraper]     [• FBref Scraper]     [• Diaspora Loader]
                │                      │                       │
                └──────────────────────┼───────────────────────┘
                                       ▼
-    ┌─────────────────────────────────────────────────────────┐
-    │              Feature Pipeline & Vector Engine            │
-    │                        │                                 │
-    │              FIFA Eligibility Logic Engine                │
-    └──────────────────────────┬──────────────────────────────┘
-                               │
-                               ▼
-                      [ FastAPI / Uvicorn ]
-                               │
-                               ▼
-                   [ Streamlit / Plotly Dashboard ]
+                      [ SQLite persistence layer ]
+                                      │
+                    ┌─────────────────┼─────────────────┐
+                    ▼                 ▼                 ▼
+          [ Similarity Engine ]  [ Eligibility Engine ]  [ Search/Filter ]
+                    │                 │                 │
+                    └─────────────────┼─────────────────┘
+                                      ▼
+                           [ FastAPI / Uvicorn API ]
+                                      │
+                                      ▼
+                   [ React + Vite + Tailwind Dashboard ]
 ```
 
 ---
@@ -91,14 +95,15 @@ A **lightweight, full-stack data pipeline** that:
 
 | Layer | Technology |
 |:--|:--|
-| **Language** | Python 3.10+ |
-| **Data Ingestion** | `soccerdata`, `BeautifulSoup4`, `Pandas` |
-| **ML / Analytics** | `scikit-learn` (StandardScaler, NearestNeighbors), `NumPy` |
-| **Backend API** | FastAPI + Pydantic (auto-generated OpenAPI docs) |
-| **Frontend UI** | Streamlit or Plotly Dash *(Sprint 4)* |
-| **Data Storage** | SQLite (dev) / PostgreSQL (prod) |
+| **Backend language** | Python 3.10+ |
+| **Data ingestion** | `requests` + `BeautifulSoup4` (Wikipedia), `soccerdata` (FBref), `PyYAML` (diaspora reference set) |
+| **ML / analytics** | `scikit-learn` (StandardScaler, NearestNeighbors), `NumPy` |
+| **Backend API** | FastAPI + Pydantic + SQLAlchemy (auto-generated OpenAPI docs) |
+| **Frontend** | React 19 + Vite + TypeScript + Tailwind CSS v4 + Recharts |
+| **Data storage** | SQLite (dev) / PostgreSQL-ready via `DATABASE_URL` |
 | **Container** | Docker & docker-compose |
 | **CI/CD** | GitHub Actions (lint + test on every push) |
+| **Planning** | [OpenSpec](openspec/) — spec-driven change proposals, specs, and design docs |
 
 ---
 
@@ -106,42 +111,45 @@ A **lightweight, full-stack data pipeline** that:
 
 ### Prerequisites
 
-- Python 3.10+ and `pip` / `uv`
+- **Python 3.10+** and `pip`
+- **Node.js 18+** and `npm` (for the frontend)
 - Git
-- **Google Chrome** (desktop install, not just the CLI) — required only to
-  run the FBref scraper (`scrapers/fbref.py`), which drives a real browser
-  session via `soccerdata`/SeleniumBase because FBref sits behind
+- **Google Chrome** (desktop install, not just the CLI) — required *only*
+  to run the FBref scraper (`scrapers/fbref.py`), which drives a real
+  browser session via `soccerdata`/SeleniumBase because FBref sits behind
   bot-detection that blocks plain HTTP requests. Not needed to run the API,
-  the other two scrapers, or the test suite — FBref-dependent tests skip
-  gracefully when Chrome isn't present.
+  the frontend, the other two scrapers, or the test suite — FBref-dependent
+  tests skip gracefully when Chrome isn't present.
 
-### Setup (3 minutes)
+### 1. Clone and set up the backend
 
 ```bash
-# 1. Clone the repo
 git clone https://github.com/kowshikjawad/BFF_Scouting.git
 cd BFF_Scouting
 
-# 2. Create virtual environment
 python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
-# Windows
-source .venv/Scripts/activate
-# macOS / Linux
-# source .venv/bin/activate
-
-# 3. Install (editable, with dev tools)
 pip install -e ".[dev]"
 
-# or, using uv (much faster)
-# uv venv .venv --python 3.12
-# uv pip install -e ".[dev]" --python .venv/Scripts/python.exe
-
-# 4. Configure environment
 cp .env.example .env
 ```
 
-### Run the API
+### 2. Populate the database (optional, but the dashboard is much more
+interesting with real data in it)
+
+```bash
+python scripts/run_scrapers.py
+```
+
+This scrapes the Bangladesh Football League's per-club squad pages, loads
+the maintained diaspora reference set, and attempts an FBref backfill for
+any tracked player in one of FBref's 9 covered competitions. Each source
+fails independently — a blocked or missing source doesn't stop the others
+from persisting. Results land in `data/processed/shonartalent.db` (SQLite,
+gitignored).
+
+### 3. Run the API
 
 ```bash
 uvicorn backend.app.main:app --reload --port 8000
@@ -149,18 +157,28 @@ uvicorn backend.app.main:app --reload --port 8000
 
 Open **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)** for the interactive Swagger UI.
 
-### Run Tests
+### 4. Run the frontend
+
+In a second terminal:
 
 ```bash
+cd frontend
+npm install
+cp .env.example .env    # defaults to http://localhost:8000/api/v1
+npm run dev
+```
+
+Open **[http://localhost:5173](http://localhost:5173)** — the dashboard talks to the API you started in step 3.
+
+### Run tests
+
+```bash
+# Backend (from the repo root, with .venv active)
 pytest -v
-```
+ruff check .
 
-```
-collected 7 items
-
-tests/backend/test_eligibility.py .....     [ 71%]  ✅
-tests/ml/test_similarity.py .               [ 85%]  ✅
-tests/test_smoke.py .                       [100%]  ✅
+# Frontend (from frontend/)
+npm run build
 ```
 
 ### Docker
@@ -175,21 +193,27 @@ docker compose up --build
 
 ```
 .
-├── backend/                 # FastAPI app, models, eligibility engine
-│   ├── api/                 #   API routers (players, similarity, eligibility)
-│   ├── app/                 #   App factory, config
-│   ├── eligibility/         #   FIFA Art. 6/7 rules engine
-│   └── models/               #   Pydantic schemas
+├── backend/                 # FastAPI app, models, eligibility & similarity engines
+│   ├── api/                 #   Routers: players (search/detail), similarity, eligibility
+│   ├── app/                 #   App factory, config, CORS
+│   ├── eligibility/         #   FIFA Art. 6/7/8 rules engine
+│   ├── models/               #   Pydantic schema + SQLAlchemy persistence (player_records.py)
+│   └── similarity/           #   Similarity pipeline wiring persistence to the ML layer
 ├── ml/                      # Machine learning pipeline
 │   ├── features/            #   z-score normalization
-│   ├── models/              #   k-NN / cosine similarity engine
-│   └── evaluation/          #   Benchmarking & notebooks
-├── scrapers/                # Data ingestion (BPL, FBref, diaspora)
-├── frontend/                # Dashboard (Streamlit / Dash — Sprint 4)
-├── specs/                   # Spec-driven development traceability
-├── tests/                   # pytest suites
-├── scripts/                 # Cron entrypoints & utilities
-├── data/                    # Raw scraped data + processed artifacts (gitignored)
+│   └── models/               #   k-NN / cosine similarity engine
+├── scrapers/                # Data ingestion (BFL squads, FBref, diaspora)
+├── frontend/                # React + Vite + Tailwind scouting dashboard
+│   └── src/
+│       ├── api/              #   Typed fetch client
+│       ├── components/       #   Avatar, FilterBar, PlayerCard, TacticalRadar, ...
+│       └── pages/             #   SearchPage, ProfilePage, EligibilityPage
+├── openspec/                # Spec-driven change proposals, specs, and design docs
+│   ├── specs/                #   Current behavior contracts per capability
+│   └── changes/archive/      #   Completed, archived change proposals
+├── data/                    # Raw scraped data + processed DB (gitignored)
+├── scripts/                 # Scraper orchestration entrypoint
+├── tests/                   # pytest suites (backend, scrapers, ml)
 ├── .github/workflows/       # CI pipeline
 ├── pyproject.toml           # Python packaging
 ├── Dockerfile               # Container image
@@ -200,53 +224,39 @@ docker compose up --build
 
 ## 📊 API Endpoints
 
-| Method | Path | Description | Module |
-|:--|:--|:--|:--:|
-| `GET` | `/health` | Health check | — |
-| `GET` | `/api/v1/players` | Multi-variable player search | FR-4.2 |
-| `GET` | `/api/v1/players/{id}/similar` | Top-K tactical lookalikes | FR-3.2/3.3 |
-| `GET` | `/api/v1/players/{id}/eligibility` | FIFA eligibility status | FR-2.1/2.2 |
+| Method | Path | Description |
+|:--|:--|:--|
+| `GET` | `/health` | Health check |
+| `GET` | `/api/v1/players` | Multi-variable player search (age, position, foot, value, diaspora eligibility) |
+| `GET` | `/api/v1/players/{id}` | Single player detail lookup |
+| `GET` | `/api/v1/players/{id}/similar` | Top-K tactically similar players |
+| `POST` | `/api/v1/players/{id}/eligibility` | FIFA eligibility status evaluation |
 
 ---
 
 ## 📐 Spec-Driven Development
 
-Every requirement in the PRD is traced to code and tests via the [`specs/`](specs/) directory:
+This project uses [OpenSpec](openspec/) for planning: every change is proposed as a spec delta, design doc, and task list before implementation, then archived with its spec synced into [`openspec/specs/`](openspec/specs/) — the current source of truth for each capability's behavior.
 
-| ID | Requirement | Code | Tests |
-|:--|:--|:--|:--:|
-| **FR-1.1** | Scrape BPL + global diaspora profiles | `scrapers/bpl.py`, `fbref.py`, `diaspora.py` | Sprint 1 |
-| **FR-1.2** | Store 8 structured player attributes | `backend/models/player.py` | — |
-| **FR-2.1** | FIFA Art. 6/7 eligibility calc | `backend/eligibility/engine.py` | `tests/backend/test_eligibility.py` |
-| **FR-2.2** | Output 3 status indicators | `backend/eligibility/engine.py::Status` | `tests/backend/test_eligibility.py` |
-| **FR-3.1** | z-score normalize event metrics | `ml/features/normalize.py` | — |
-| **FR-3.2** | cosine / k-NN matching | `ml/models/similarity.py` | `tests/ml/test_similarity.py` |
-| **FR-3.3** | Top-5 ranked + % similarity | `ml/models/similarity.py` | `tests/ml/test_similarity.py` |
-| **FR-4.1** | Radar chart vs. league median | `frontend/` | Sprint 4 |
-| **FR-4.2** | Multi-variable search filters | `backend/api/players.py` | Sprint 3 |
-| **FR-4.3** | 1-page PDF scout export | `frontend/` | Sprint 4 |
-
----
-
-## 🗺️ Roadmap
-
-| Sprint | Focus | Planned Deliverables |
-|:--:|:--|:--|
-| **1** | 🗃️ Data Engine | BPL squad scraper, FBref stat scraper, diaspora listing scraper |
-| **2** | 📊 Feature Engineering & ML | z-score normalization pipeline, k-NN vector similarity engine |
-| **3** | 🔌 Backend & Eligibility | FastAPI routes, FIFA heritage logic, SQLite/PostgreSQL persistence |
-| **4** | 🎨 UI & Polish | Streamlit dashboard, radar charts, PDF export, Docker, docs |
+| Capability | Covers | Spec |
+|:--|:--|:--|
+| **player-data-ingestion** | Scraper sourcing rules, rate limits, failure isolation | `openspec/specs/player-data-ingestion/` |
+| **player-records** | Persistence semantics (partial records, upserts) | `openspec/specs/player-records/` |
+| **fifa-eligibility** | Art. 6/7/8 evaluation rules | `openspec/specs/fifa-eligibility/` |
+| **player-search** | Search/filter and detail lookup behavior | `openspec/specs/player-search/` |
+| **tactical-similarity** | Similarity ranking rules and edge cases | `openspec/specs/tactical-similarity/` |
+| **scouting-dashboard** | Frontend user-facing behavior | `openspec/specs/scouting-dashboard/` |
 
 ---
 
 ## 🤝 Contributing
 
-This project is in early development. Contributions, bug reports, and feature ideas are welcome!
+This project is in active development. Contributions, bug reports, and feature ideas are welcome!
 
-1. Check the [specs](specs/) and [open issues](https://github.com/kowshikjawad/BFF_Scouting/issues)
+1. Check [`openspec/specs/`](openspec/specs/) for current behavior contracts and [open issues](https://github.com/kowshikjawad/BFF_Scouting/issues)
 2. Fork the repo and create a feature branch
-3. Run `pytest` and `ruff check .` before opening a PR
-4. Open a pull request against `main`
+3. Run `pytest`, `ruff check .`, and (if touching the frontend) `npm run build` before opening a PR
+4. Open a pull request against `master`
 
 ---
 
