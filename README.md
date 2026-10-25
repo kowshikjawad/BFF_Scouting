@@ -108,6 +108,12 @@ A **lightweight, full-stack data pipeline** that:
 
 - Python 3.10+ and `pip` / `uv`
 - Git
+- **Google Chrome** (desktop install, not just the CLI) — required only to
+  run the FBref scraper (`scrapers/fbref.py`), which drives a real browser
+  session via `soccerdata`/SeleniumBase because FBref sits behind
+  bot-detection that blocks plain HTTP requests. Not needed to run the API,
+  the other two scrapers, or the test suite — FBref-dependent tests skip
+  gracefully when Chrome isn't present.
 
 ### Setup (3 minutes)
 

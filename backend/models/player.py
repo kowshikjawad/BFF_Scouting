@@ -16,7 +16,10 @@ class Player(BaseModel):
 
     id: str
     name: str
-    age: int
+    # Nullable: domestic-league source data doesn't always carry a
+    # parseable date of birth for every squad member (verified during
+    # scraper implementation -- see player-data-ingestion spec).
+    age: int | None = None
     position: str  # primary position
     height_cm: float | None = None
     strong_foot: Literal["Left", "Right", "Both"] | None = None

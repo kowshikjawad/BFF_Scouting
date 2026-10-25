@@ -31,5 +31,14 @@ class Settings:
         default_factory=lambda: int(os.getenv("SIMILARITY_TOP_K", "5"))
     )
 
+    # Scrapers: identifies this project honestly to source sites (e.g.
+    # Wikipedia's API etiquette asks for a descriptive, contactable
+    # User-Agent -- this is the opposite of bot-detection evasion).
+    scraper_user_agent: str = field(
+        default_factory=lambda: os.getenv(
+            "SCRAPER_USER_AGENT", "ShonarTalentAI/0.1 (+contact@example.com)"
+        )
+    )
+
 
 settings = Settings()

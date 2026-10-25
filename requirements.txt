@@ -7,7 +7,14 @@ pandas>=2.0
 numpy>=1.24
 scikit-learn>=1.3
 beautifulsoup4>=4.12
-soccerdata>=1.6
+requests>=2.31
+pyyaml>=6.0
+# Pinned exact (not just >=) per player-data-foundation design.md risk
+# notes: soccerdata pulls in SeleniumBase/undetected-chromedriver to reach
+# FBref, so its resolved version chain is worth tracking precisely.
+soccerdata==2026.43.0
+seleniumbase==4.56.3
+selenium==4.51.0
 sqlalchemy>=2.0
 plotly>=5.18
 streamlit>=1.32

@@ -1,0 +1,116 @@
+# Maintained reference roster of Bangladeshi diaspora / dual-national
+# players (player-data-ingestion spec: "Diaspora players are sourced from
+# a maintained reference set, not scraped" -- there is no structured feed
+# for this population).
+#
+# Each entry's `last_verified_date` is the date its facts were last
+# checked against public sources (Wikipedia player articles, FotMob,
+# BeSoccer, The Daily Star) via web research. These players' club
+# situations change fast -- e.g. Cuba Mitchell's and Hamza Choudhury's
+# clubs both changed again between this file's two research passes in the
+# same month -- so treat any entry older than a few months as due for
+# re-verification before relying on it for a real scouting decision.
+#
+# `height_cm`, `strong_foot`, `contract_expiry`, and `estimated_value_eur`
+# are left null wherever this research did not turn up a verified value --
+# they are not guessed.
+
+players:
+  - id: hamza-choudhury
+    name: Hamza Choudhury
+    age: 29  # DOB 1997-10-01
+    position: Defensive Midfielder
+    height_cm: null
+    strong_foot: null
+    league_band: EFL Championship (England) -- Sheffield United
+    contract_expiry: null
+    estimated_value_eur: null
+    ancestry_eligibility: "ELIGIBLE & CLEARED"
+    last_verified_date: 2026-10-24
+    notes: >
+      Moved from Leicester City to Sheffield United in 2026. Debuted for
+      Bangladesh March 2025; scored vs Bhutan June 2025. Not in a
+      soccerdata-FBref-covered competition (Championship is outside its
+      9-competition list).
+
+  - id: tariq-kazi
+    name: Tariq Kazi
+    age: 26  # DOB 2000-10-06
+    position: Centre-Back
+    height_cm: 179
+    strong_foot: null
+    league_band: Bhutan Premier League -- Paro FC
+    contract_expiry: null
+    estimated_value_eur: null
+    ancestry_eligibility: "ELIGIBLE & CLEARED"
+    last_verified_date: 2026-10-24
+    notes: >
+      Left Bashundhara Kings (Bangladesh BFL) for Paro FC (Bhutan) in
+      April 2026. Earlier career included a spell in Finland. Second
+      non-resident Bangladeshi international after Jamal Bhuyan. Not in a
+      soccerdata-FBref-covered competition.
+
+  - id: jamal-bhuyan
+    name: Jamal Bhuyan
+    age: 36  # DOB 1990-04-10
+    position: Defensive Midfielder
+    height_cm: null
+    strong_foot: null
+    league_band: Bangladesh Football League -- Brothers Union Dhaka
+    contract_expiry: null
+    estimated_value_eur: null
+    ancestry_eligibility: "ELIGIBLE & CLEARED"
+    last_verified_date: 2026-10-24
+    notes: >
+      First non-resident Bangladeshi international and a past national
+      team captain; long Denmark career before this domestic move. Not in
+      a soccerdata-FBref-covered competition.
+
+  - id: fahamedul-islam
+    name: Fahamedul Islam
+    age: 20  # DOB 2006-06-30
+    position: Forward
+    height_cm: null
+    strong_foot: null
+    league_band: Italy, lower division -- Sestri Levante
+    contract_expiry: null
+    estimated_value_eur: null
+    ancestry_eligibility: "ELIGIBLE & CLEARED"
+    last_verified_date: 2026-10-24
+    notes: >
+      Debuted for Bangladesh June 2025 vs Bhutan. Sestri Levante plays
+      below Serie A, so not in a soccerdata-FBref-covered competition.
+
+  - id: cuba-mitchell
+    name: Cuba Mitchell
+    age: 20  # DOB 2005-11-23
+    position: Midfielder
+    height_cm: null
+    strong_foot: null
+    league_band: England, non-league -- Barwell FC
+    contract_expiry: null
+    estimated_value_eur: null
+    ancestry_eligibility: "ELIGIBLE & CLEARED"
+    last_verified_date: 2026-10-24
+    notes: >
+      Received Bangladeshi passport and FIFA switch approval June 2025;
+      joined Bashundhara Kings July 2025, left over unpaid wages ~Jan
+      2026, signed with Barwell FC per Wikipedia (exact transfer date
+      unconfirmed -- sources partially conflict on the intervening
+      timeline). English non-league, not soccerdata-FBref-covered.
+
+  - id: shamit-shome
+    name: Shamit Shome
+    age: 29  # DOB 1997-09-05
+    position: Midfielder
+    height_cm: null
+    strong_foot: null
+    league_band: USL League One (USA) -- New York Cosmos
+    contract_expiry: null
+    estimated_value_eur: null
+    ancestry_eligibility: "ELIGIBLE & CLEARED"
+    last_verified_date: 2026-10-24
+    notes: >
+      Moved from Cavalry FC (Canadian Premier League) to New York Cosmos
+      in 2026 after a three-year spell in Canada. Not in a
+      soccerdata-FBref-covered competition.
