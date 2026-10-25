@@ -6,8 +6,13 @@ NFR "similarity search under 500ms".
 from __future__ import annotations
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.config import settings
+
+# Local Vite dev server origins -- the frontend calls this API from a
+# different origin during development.
+_DEV_FRONTEND_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 
 def create_app() -> FastAPI:
@@ -16,6 +21,13 @@ def create_app() -> FastAPI:
         title="ShonarTalent AI",
         description="Bangladeshi Football Scouting & Talent Discovery Platform",
         version="0.1.0",
+    )
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_DEV_FRONTEND_ORIGINS,
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     @app.get("/health")

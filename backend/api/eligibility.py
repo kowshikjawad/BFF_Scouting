@@ -41,9 +41,15 @@ class EligibilityResponse(BaseModel):
     article8_switch_approved: bool
 
 
-@router.get("/players/{player_id}/eligibility", response_model=EligibilityResponse)
+@router.post("/players/{player_id}/eligibility", response_model=EligibilityResponse)
 async def eligibility(player_id: str, facts: EligibilityFacts) -> EligibilityResponse:
-    """Evaluate national-team eligibility flags (FR-2.1 / FR-2.2)."""
+    """Evaluate national-team eligibility flags (FR-2.1 / FR-2.2).
+
+    POST, not GET: a browser's `fetch()` cannot send a body on a GET/HEAD
+    request (the Fetch spec throws `TypeError`), and this is a stateless
+    evaluation over supplied facts rather than a fetch-by-id, so POST is
+    also the more correct verb.
+    """
     result = evaluate(EligibilityInput(**facts.model_dump()))
     return EligibilityResponse(
         player_id=player_id,

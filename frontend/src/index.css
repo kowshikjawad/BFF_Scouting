@@ -1,0 +1,132 @@
+@import "tailwindcss";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+@import "@fontsource/space-grotesk/700.css";
+
+@theme {
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  /* Shell: near-black charcoal, not pure black -- a broadcast-graphics
+     ground, not a terminal. */
+  --color-shell: #0b0e11;
+  --color-surface: #12161b;
+  --color-surface-raised: #181d23;
+  --color-border: #262c34;
+  --color-border-strong: #333b45;
+
+  --color-ink: #e9edf1;
+  --color-ink-muted: #9aa5b1;
+  /* #7b8794, not the darker slate first tried: that one measured ~3.3:1
+     against the shell, under the 4.5:1 floor for the small captions this
+     token is actually used for. This measures ~5.3:1. */
+  --color-ink-faint: #7b8794;
+
+  /* Primary accent: pitch green. Carries primary actions, links, the
+     radar chart's signature ring. */
+  --color-pitch: #22c55e;
+  --color-pitch-strong: #16a34a;
+  --color-pitch-tint: #0f2518;
+
+  /* Secondary accent: "shonar" gold -- eligibility/highlight only. */
+  --color-gold: #d4a24c;
+  --color-gold-tint: #2a2114;
+
+  /* Semantic state colors double as brand (green/gold/red). */
+  --color-eligible: #22c55e;
+  --color-documentation: #d4a24c;
+  --color-ineligible: #ef4444;
+
+  --radius-token: 6px;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-shell);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-pitch-strong);
+  color: #061009;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-pitch);
+  outline-offset: 2px;
+}
+
+input[type="number"],
+input[type="text"],
+input[type="search"],
+select {
+  background-color: var(--color-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-token);
+  padding: 0.375rem 0.625rem;
+  font-size: 0.875rem;
+  color: var(--color-ink);
+}
+
+input[type="number"]::placeholder,
+input[type="text"]::placeholder {
+  color: var(--color-ink-faint);
+}
+
+input[type="number"]:focus,
+input[type="text"]:focus,
+input[type="search"]:focus,
+select:focus {
+  border-color: var(--color-pitch);
+}
+
+/* Firefox hides the up/down spinner with this; keep it clean and consistent
+   with the rest of the system across browsers rather than relying on each
+   engine's own default affordance. */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  margin: 0;
+}
+
+* {
+  scrollbar-color: var(--color-border-strong) var(--color-shell);
+  scrollbar-width: thin;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #print-root,
+  #print-root * {
+    visibility: visible;
+  }
+  #print-root {
+    position: absolute;
+    inset: 0;
+    /* A printed scout summary reads on paper, not a monitor -- flip the
+       shell's dark palette to a light one for this one element rather
+       than printing a full-bleed near-black page. */
+    --color-shell: #ffffff;
+    --color-surface: #ffffff;
+    --color-surface-raised: #f3f4f6;
+    --color-border: #d1d5db;
+    --color-border-strong: #9ca3af;
+    --color-ink: #0b0e11;
+    --color-ink-muted: #4b5563;
+    --color-ink-faint: #6b7280;
+    background: var(--color-shell);
+    color: var(--color-ink);
+  }
+}
