@@ -1,14 +1,12 @@
-# Local orchestration for ShonarTalent AI (NFR-port).
-version: "3.9"
-
 services:
-  api:
+  app:
     build: .
     ports:
       - "8000:8000"
     environment:
-      APP_ENV: development
+      APP_ENV: production
       DATABASE_URL: sqlite:///./data/processed/shonartalent.db
     volumes:
       - ./data:/app/data
+    command: ["sh", "-c", "python -m scripts.seed_data && exec uvicorn backend.app.main:app --host 0.0.0.0 --port 8000"]
     restart: unless-stopped

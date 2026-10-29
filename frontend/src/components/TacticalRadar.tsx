@@ -5,86 +5,83 @@ import {
   Radar,
   RadarChart,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
-import type { Player, TacticalMetric } from "../api/types";
+import { Activity } from "lucide-react";
+import type { Player } from "../api/types";
 import { METRIC_LABELS, TACTICAL_METRICS } from "../api/types";
-
-interface Props {
-  player: Player;
-  pool: Player[];
-}
-
-function poolAverage(pool: Player[], metric: TacticalMetric): number {
-  const values = pool
-    .map((p) => p[metric])
-    .filter((v): v is number => v != null);
-  if (values.length === 0) return 0;
-  return values.reduce((sum, v) => sum + v, 0) / values.length;
-}
-
-export function TacticalRadar({ player, pool }: Props) {
-  const hasAnyMetric = TACTICAL_METRICS.some((m) => player[m] != null);
-
-  if (!hasAnyMetric) {
+import { tacticalComparison } from "../lib/tactical";
+export function TacticalRadar({ player, pool }: { player: Player; pool: Player[] }) {
+  const comparison = tacticalComparison(player, pool);
+  const missing = TACTICAL_METRICS.some((m) => player[m] == null);
+  if (!comparison)
     return (
-      <div className="flex h-72 flex-col items-center justify-center gap-2 rounded-[6px] border border-dashed border-border text-center">
-        <p className="text-sm font-medium text-ink-muted">No tactical data available</p>
-        <p className="max-w-xs text-xs text-ink-faint">
-          This player has no recorded per-90 metrics yet — common for players outside
-          FBref's tracked competitions.
+      <div className="flex min-h-64 flex-col items-center justify-center rounded-panel border border-dashed border-border bg-shell/50 px-7 text-center">
+        <span className="mb-3 rounded-full bg-white p-3 text-pitch">
+          <Activity size={22} strokeWidth={1.5} />
+        </span>
+        <p className="text-sm font-medium">
+          {missing ? "Tactical data is still taking shape" : "No comparable cohort available"}
+        </p>
+        <p className="mt-2 max-w-sm text-xs leading-relaxed text-ink-muted">
+          {missing
+            ? "A complete set of per-90 metrics is needed to draw a reliable profile. Available recorded values are shown below."
+            : "A comparison needs players in the same league and position with complete metrics. This player’s recorded values are shown below."}
         </p>
       </div>
     );
-  }
-
-  const data = TACTICAL_METRICS.map((metric) => ({
-    metric: METRIC_LABELS[metric],
-    player: player[metric] ?? 0,
-    pool: poolAverage(pool, metric),
-  }));
-
+  const data = comparison.data.map((row) => ({ ...row, metric: METRIC_LABELS[row.metric] }));
   return (
-    <div className="h-72">
-      <ResponsiveContainer width="100%" height="100%">
-        {/* Signature move: the radar's background grid reads as a pitch's
-            concentric center-circle rings, in the pitch-green accent --
-            not a generic grey polygon grid. */}
-        <RadarChart data={data} outerRadius="72%">
-          <PolarGrid gridType="circle" stroke="#22c55e" strokeOpacity={0.18} />
-          <PolarAngleAxis
-            dataKey="metric"
-            tick={{ fill: "#9aa5b1", fontSize: 11 }}
-          />
-          <PolarRadiusAxis tick={false} axisLine={false} />
-          <Radar
-            name="Pool average"
-            dataKey="pool"
-            stroke="#5b6673"
-            fill="#5b6673"
-            fillOpacity={0.15}
-          />
-          <Radar
-            name={player.name}
-            dataKey="player"
-            stroke="#22c55e"
-            fill="#22c55e"
-            fillOpacity={0.35}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
-      <div className="mt-2 flex items-center justify-center gap-6 text-xs text-ink-muted">
-        <Legend color="#22c55e" label={player.name} />
-        <Legend color="#5b6673" label="Pool average (approximation)" />
+    <div>
+      <div
+        className="h-72"
+        role="img"
+        aria-label={`Tactical percentile comparison of ${player.name ?? player.id} against ${comparison.count} players in the same league and position`}
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart data={data} outerRadius="68%">
+            <PolarGrid stroke="var(--color-chart-grid)" />
+            <PolarAngleAxis
+              dataKey="metric"
+              tick={{ fill: "var(--color-ink-muted)", fontSize: 10 }}
+            />
+            <PolarRadiusAxis
+              domain={[0, 100]}
+              ticks={[25, 50, 75, 100]}
+              tick={false}
+              axisLine={false}
+            />
+            <Tooltip formatter={(v) => `${Number(v).toFixed(0)}th percentile`} />
+            <Radar
+              name="Cohort median"
+              dataKey="median"
+              stroke="var(--color-chart-cohort)"
+              fill="var(--color-chart-cohort)"
+              fillOpacity={0.12}
+            />
+            <Radar
+              name={player.name ?? player.id}
+              dataKey="player"
+              stroke="var(--color-pitch)"
+              fill="var(--color-pitch)"
+              fillOpacity={0.2}
+            />
+          </RadarChart>
+        </ResponsiveContainer>
       </div>
+      <div className="flex justify-center gap-5 text-[10px] text-ink-muted">
+        <span>
+          <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-pitch" />
+          Player
+        </span>
+        <span>
+          <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-[var(--color-chart-cohort)]" />
+          Cohort median
+        </span>
+      </div>
+      <p className="mt-3 text-center text-[10px] text-ink-muted">
+        Percentile scale · {comparison.count} players · same league & position
+      </p>
     </div>
-  );
-}
-
-function Legend({ color, label }: { color: string; label: string }) {
-  return (
-    <span className="flex items-center gap-1.5">
-      <span className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-      {label}
-    </span>
   );
 }

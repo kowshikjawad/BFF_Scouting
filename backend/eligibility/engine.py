@@ -100,12 +100,13 @@ def _heritage_status(facts: EligibilityInput) -> Status:
 def evaluate(facts: EligibilityInput) -> EligibilityResult:
     """Apply FIFA Art. 6/7/8 rules and return a full clearance result."""
     heritage = _heritage_status(facts)
-    article8_required = facts.has_senior_caps_other_association and not facts.article8_switch_approved
+    article8_required = (
+        facts.has_senior_caps_other_association or facts.has_youth_caps_other_association
+    ) and not facts.article8_switch_approved
 
     if heritage is Status.ELIGIBLE and article8_required:
-        # Heritage is fully documented and cleared, but a one-time
-        # change-of-association request (Art. 8) is still outstanding --
-        # never surface a bare ELIGIBLE & CLEARED in that case.
+        # Prior official youth or senior representation needs association review.
+        # A documented ancestry link alone must not imply automatic clearance.
         status = Status.DOCUMENTATION
     else:
         status = heritage

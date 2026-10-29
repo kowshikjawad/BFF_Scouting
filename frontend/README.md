@@ -1,49 +1,22 @@
-# Frontend (Module 4 — Scouting Dashboard)
+# ShonarTalent AI frontend
 
-React + Vite + TypeScript + Tailwind CSS v4 single-page app, consuming the
-FastAPI backend at `/api/v1`. Chosen over the PRD's listed Streamlit/Plotly
-Dash stack for full control over the custom visual design — see
-`openspec/changes/archive/*-scouting-dashboard-ui/design.md` decision #1.
+React, TypeScript, Vite and Tailwind. Node.js 24+ is recommended.
 
-## Views
-
-- **Search** (`/`) — filter players by max age, position, strong foot, max
-  value, and diaspora eligibility (FR-4.2).
-- **Player profile** (`/players/:id`) — profile fields, a tactical radar
-  chart against the pool average (FR-4.1), a "Find similar players" action,
-  and a one-page PDF export (FR-4.3, via the browser's print-to-PDF).
-- **Eligibility checker** (`/eligibility`) — a standalone form over the
-  FIFA eligibility fact fields.
-
-## Local development
-
-Requires the backend running separately (from the repo root):
-
-```bash
-uvicorn backend.app.main:app --reload
-```
-
-Then, from this directory:
-
-```bash
-npm install
-cp .env.example .env   # set VITE_API_BASE_URL if the backend isn't on :8000
+```sh
+npm ci
 npm run dev
 ```
 
-`VITE_API_BASE_URL` defaults to `http://localhost:8000/api/v1` if unset.
+The backend must run on port 8000. Vite proxies `/api` locally. Production defaults to same-origin
+`/api/v1`; use `VITE_API_BASE_URL` only for a deliberate separate API deployment.
 
-## Build
-
-```bash
+```sh
+npm run lint
+npm test
 npm run build
+npx playwright install chromium
+npm run test:e2e
 ```
 
-## Notes
-
-- No stock or AI-generated photos are attached to any player's profile —
-  avatars are generated locally (initials on a deterministic color) since
-  the roster is real, named people (see `PRODUCT.md`).
-- The radar chart's "pool average" baseline is a client-side approximation
-  (mean of the current search result set), not a backend-computed league
-  median — there's no such endpoint today. See design.md decision #4.
+Build output is served by FastAPI from `frontend/dist`. Browser tests use port 8015 and an isolated
+seeded database. See the root README and `DESIGN.md` for product, coverage and asset details.

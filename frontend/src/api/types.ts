@@ -1,18 +1,16 @@
 // Mirrors backend/models/player.py::Player and backend/eligibility/engine.py.
 
-export type EligibilityStatus =
-  | "ELIGIBLE & CLEARED"
-  | "DOCUMENTATION REQUIRED"
-  | "INELIGIBLE";
+export type EligibilityStatus = "ELIGIBLE & CLEARED" | "DOCUMENTATION REQUIRED" | "INELIGIBLE";
 
 export interface Player {
+  data_source?: "real" | "synthetic";
   id: string;
-  name: string;
+  name: string | null;
   age: number | null;
-  position: string;
+  position: string | null;
   height_cm: number | null;
   strong_foot: "Left" | "Right" | "Both" | null;
-  league_band: string;
+  league_band: string | null;
   contract_expiry: string | null;
   estimated_value_eur: number | null;
   ancestry_eligibility: EligibilityStatus | null;
@@ -42,6 +40,10 @@ export const METRIC_LABELS: Record<TacticalMetric, string> = {
 };
 
 export interface SearchFilters {
+  dataset?: "real" | "synthetic";
+  q?: string;
+  sort?: "name" | "age_asc" | "value_desc";
+  eligibility_status?: EligibilityStatus | "NOT_ASSESSED";
   max_age?: number;
   position?: string;
   strong_foot?: "Left" | "Right" | "Both";
@@ -76,4 +78,7 @@ export interface EligibilityResponse {
   status: EligibilityStatus;
   article8_switch_required: boolean;
   article8_switch_approved: boolean;
+  reasons: string[];
+  review_required: boolean;
+  ruleset: string;
 }

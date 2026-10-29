@@ -1,271 +1,159 @@
-<h1 align="center">🏆 <b><span style="color:#006747;">Shonar</span><span style="color:#C60C30;">Talent</span> AI</b></h1>
-<h3 align="center">🇧🇩 Bangladeshi Football Scouting & Talent Discovery Platform</h3>
+# ShonarTalent AI
 
-<p align="center">
-  <a href="https://github.com/kowshikjawad/BFF_Scouting/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/kowshikjawad/BFF_Scouting/ci.yml?branch=master&style=for-the-badge&logo=github&label=CI" alt="CI"/>
-  </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License"/>
-  </a>
-  <a href="https://www.python.org/">
-    <img src="https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python" alt="Python"/>
-  </a>
-  <a href="https://fastapi.tiangolo.com/">
-    <img src="https://img.shields.io/badge/FastAPI-0.110+-teal?style=for-the-badge" alt="FastAPI"/>
-  </a>
-  <a href="https://react.dev/">
-    <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React"/>
-  </a>
-</p>
+A minimal football scouting workspace for Bangladesh’s domestic and diaspora talent. Search player
+records, build a local shortlist, inspect tactical data, screen heritage facts and download scout reports.
 
-<p align="center">
-  <b>
-    <span>🗃️ Data Ingestion</span> •
-    <span>🧠 ML Similarity Engine</span> •
-    <span>⚖️ FIFA Eligibility</span> •
-    <span>📊 Scout Dashboard</span>
-  </b>
-</p>
+React 19 / TypeScript / Vite / Tailwind · FastAPI / SQLAlchemy / SQLite · scikit-learn · ReportLab
 
----
+![Player discovery workspace](docs/screenshots/discovery.png)
 
-## 🎯 The Problem
+## Run locally
 
-Bangladeshi football clubs (Bashundhara Kings, Abahani Limited, Fortis FC) and the **Bangladesh Football Federation (BFF)** face a structural data void:
+Requires Python 3.11+ and Node.js 24+. From the project root:
 
-- **No match tracking data** — optical tracking, heatmaps, event-level metrics are practically non-existent in South Asian domestic leagues due to $100k+ hardware costs.
-- **No diaspora pipeline** — identifying Bangladeshi-origin players in lower European/North American leagues relies entirely on manual word-of-mouth scouting.
-
-## 💡 Our Solution
-
-A **full-stack data pipeline and scouting dashboard** that:
-
-1. **Aggregates** player data from the Bangladesh Football League (BFL) and a maintained global diaspora reference set into one searchable database
-2. **Matches talent** using ML (z-score normalization + cosine k-NN) to surface players with comparable tactical profiles
-3. **Validates eligibility** — evaluates FIFA national-team eligibility under Statutes Art. 6, 7, and 8 (genuine link / residency / one-time association switch)
-4. **Visualizes it all** in a dedicated web dashboard — search/filter, player profiles with radar charts, similarity results, and one-page PDF scout summaries
-
-> 📖 Full product specification: [`PRD.md`](PRD.md) · Behavior contracts: [`openspec/specs/`](openspec/specs/)
-
----
-
-## ✨ Features
-
-| Module | What It Does | Status |
-|:--|:--|:--:|
-| **🌍 Data Ingestion** | Scrapes BFL squads (Wikipedia, with football/cricket source disambiguation), FBref tactical stats (for tracked players in FBref's 9 covered competitions), and a maintained diaspora reference set | ✅ Live |
-| **⚖️ FIFA Eligibility Engine** | Rule-based evaluation of Art. 6 (dual national, 2yr residency), Art. 7 (new nationality, 5yr post-18 residency), and Art. 8 (one-time association switch) → `ELIGIBLE & CLEARED`, `DOCUMENTATION REQUIRED`, or `INELIGIBLE` | ✅ Live |
-| **🧠 Tactical Similarity Engine** | z-score normalization + cosine k-NN matching over 5 per-90 metrics (Goals, Key Passes, Progressive Carries, Tackles Won, Aerial Duel %) | ✅ Live |
-| **🔌 RESTful API** | Player search/detail/similarity/eligibility, all via FastAPI with auto-generated OpenAPI docs | ✅ Live |
-| **📊 Scouting Dashboard** | React web app: filterable search, player profiles with tactical radar charts, similarity results, an eligibility checker form, and 1-page PDF export | ✅ Live |
-
-A live run of the scrapers (as of this writing) populates **113 real players** (6 diaspora + 107 domestic) into the local database.
-
----
-
-## 🏗️ Architecture
-
-```
-  [External Data Sources]
-    (Wikipedia BFL squad pages / FBref / maintained diaspora reference set)
-               │
-               ▼
-    [• BFL Squad Scraper]     [• FBref Scraper]     [• Diaspora Loader]
-               │                      │                       │
-               └──────────────────────┼───────────────────────┘
-                                      ▼
-                      [ SQLite persistence layer ]
-                                      │
-                    ┌─────────────────┼─────────────────┐
-                    ▼                 ▼                 ▼
-          [ Similarity Engine ]  [ Eligibility Engine ]  [ Search/Filter ]
-                    │                 │                 │
-                    └─────────────────┼─────────────────┘
-                                      ▼
-                           [ FastAPI / Uvicorn API ]
-                                      │
-                                      ▼
-                   [ React + Vite + Tailwind Dashboard ]
-```
-
----
-
-## 🧰 Tech Stack
-
-| Layer | Technology |
-|:--|:--|
-| **Backend language** | Python 3.10+ |
-| **Data ingestion** | `requests` + `BeautifulSoup4` (Wikipedia), `soccerdata` (FBref), `PyYAML` (diaspora reference set) |
-| **ML / analytics** | `scikit-learn` (StandardScaler, NearestNeighbors), `NumPy` |
-| **Backend API** | FastAPI + Pydantic + SQLAlchemy (auto-generated OpenAPI docs) |
-| **Frontend** | React 19 + Vite + TypeScript + Tailwind CSS v4 + Recharts |
-| **Data storage** | SQLite (dev) / PostgreSQL-ready via `DATABASE_URL` |
-| **Container** | Docker & docker-compose |
-| **CI/CD** | GitHub Actions (lint + test on every push) |
-| **Planning** | [OpenSpec](openspec/) — spec-driven change proposals, specs, and design docs |
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- **Python 3.10+** and `pip`
-- **Node.js 18+** and `npm` (for the frontend)
-- Git
-- **Google Chrome** (desktop install, not just the CLI) — required *only*
-  to run the FBref scraper (`scrapers/fbref.py`), which drives a real
-  browser session via `soccerdata`/SeleniumBase because FBref sits behind
-  bot-detection that blocks plain HTTP requests. Not needed to run the API,
-  the frontend, the other two scrapers, or the test suite — FBref-dependent
-  tests skip gracefully when Chrome isn't present.
-
-### 1. Clone and set up the backend
-
-```bash
-git clone https://github.com/kowshikjawad/BFF_Scouting.git
-cd BFF_Scouting
-
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-
-pip install -e ".[dev]"
-
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -e '.[dev]'
 cp .env.example .env
+.venv/bin/python -m scripts.seed_data
+.venv/bin/uvicorn backend.app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### 2. Populate the database (optional, but the dashboard is much more
-interesting with real data in it)
+In another terminal:
 
-```bash
-python scripts/run_scrapers.py
-```
-
-This scrapes the Bangladesh Football League's per-club squad pages, loads
-the maintained diaspora reference set, and attempts an FBref backfill for
-any tracked player in one of FBref's 9 covered competitions. Each source
-fails independently — a blocked or missing source doesn't stop the others
-from persisting. Results land in `data/processed/shonartalent.db` (SQLite,
-gitignored).
-
-### 3. Run the API
-
-```bash
-uvicorn backend.app.main:app --reload --port 8000
-```
-
-Open **[http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)** for the interactive Swagger UI.
-
-### 4. Run the frontend
-
-In a second terminal:
-
-```bash
+```sh
 cd frontend
-npm install
-cp .env.example .env    # defaults to http://localhost:8000/api/v1
+npm ci
 npm run dev
 ```
 
-Open **[http://localhost:5173](http://localhost:5173)** — the dashboard talks to the API you started in step 3.
+Open [localhost:5173](http://localhost:5173). Vite proxies API calls to port 8000. The default API
+URL is `/api/v1`; set `VITE_API_BASE_URL` only when deliberately hosting the API elsewhere.
+The interactive API documentation is at [localhost:8000/docs](http://localhost:8000/docs).
 
-### Run tests
+To run through one server, build the frontend (`npm run build --prefix frontend`), then start
+FastAPI. Open [localhost:8000](http://localhost:8000). Direct profile/shortlist links work after refresh.
 
-```bash
-# Backend (from the repo root, with .venv active)
-pytest -v
-ruff check .
+## Synthetic demo
 
-# Frontend (from frontend/)
-npm run build
+The app opens in **Synthetic demo** mode: 160 fictional players, complete metrics, working radar
+charts, top-five similarity results, all filters and labelled PDF exports. Choose **Real records**
+from the Data source selector to return to sourced profiles. The datasets do not mix in analytics.
+
+```sh
+.venv/bin/python -m scripts.seed_synthetic   # repeatable demo-only regeneration
 ```
 
-### Docker
+No invented values are attached to real players. See [how the demo works](docs/SYNTHETIC-DEMO.md)
+for a walkthrough, generation assumptions, metric units, percentile charts and similarity scoring.
 
-```bash
+## Workflows
+
+- **Discover:** case-insensitive name search, canonical primary/secondary positions, maximum age,
+preferred foot, maximum value and recorded eligibility. Sort by name, age or value; use table or
+cards and pagination. Search state is preserved in the URL.
+- **Inspect:** recorded facts, nullable tactical metrics and percentile radar against the same
+league/position cohort median. Missing metrics are never shown as recorded zeros.
+- **Shortlist:** bookmark from directory or profile; persists in this browser. Storage failures
+show a session-only notice. Shortlists are not synchronized between browsers or teammates.
+- **Similarity:** cosine k-NN over standardized per-90 metrics. Missing cells on partial profiles
+are mean-imputed; profiles without any metrics are excluded. Empty coverage produces an explanation.
+- **Eligibility:** validated ancestry, residency and prior-representation facts, explained result,
+and change-of-association review indicator. Editing facts clears the previous assessment.
+- **Report:** actual one-page PDF download from a player profile, with recorded facts and data notes.
+
+## Data and limits
+
+The existing local database contains 113 real records from a prior ingestion run (6 maintained
+reference profiles and 107 domestic squad records). The database is gitignored; a fresh clone gets
+the six maintained profiles and 160 fictional demo profiles through the offline seed command. The seed is idempotent and preserves
+previously collected tactical metrics.
+
+```sh
+.venv/bin/python -m scripts.seed_data      # offline maintained roster
+.venv/bin/python -m scripts.run_scrapers   # optional network refresh
+```
+
+Domestic squad listings come from Wikipedia’s Bangladesh Football League club pages. Diaspora
+profiles come from `data/seed/diaspora_players.yaml`, with source/verification notes. FBref backfill
+uses `soccerdata` and only covers supported competitions. Chrome is needed only for that optional
+browser-based source; it is not bundled in the default API container. A failed source is rolled back
+without preventing the next source from saving. Source access restrictions are reported, not bypassed.
+
+The current 113-player dataset has **no recorded tactical metrics**. Charts and similarity therefore
+usually show coverage explanations. Adding valid source metrics activates the existing pipeline;
+no fabricated performance values are included to make the dashboard appear populated.
+
+The eligibility engine is a **simplified legacy screening ruleset**, not a certification of current
+FIFA regulations. It does not model all nationality, residency or representation exceptions. Prior
+youth and senior representation prompt review. Nationality and official clearance must be confirmed
+by the relevant association using [FIFA’s current guidance](https://inside.fifa.com/legal/news/updated-documentation-guidance-player-eligibility-change-association).
+The stored `ELIGIBLE & CLEARED` vocabulary is retained for API compatibility and represents a recorded
+screening status, not an independent official clearance determination.
+
+## Container
+
+```sh
 docker compose up --build
 ```
 
----
+Open [localhost:8000](http://localhost:8000). A multi-stage build includes the UI, API, offline seed
+and health check. Compose keeps data in `./data`; export reports directly in the browser. Optional
+FBref scraping requires a separate Chrome-enabled environment. The image does not force amd64.
 
-## 📂 Project Structure
+This release is an unauthenticated scouting workspace intended for trusted deployment. Public
+multi-user access, authentication and shared shortlists require a separate product scope.
 
-```
-.
-├── backend/                 # FastAPI app, models, eligibility & similarity engines
-│   ├── api/                 #   Routers: players (search/detail), similarity, eligibility
-│   ├── app/                 #   App factory, config, CORS
-│   ├── eligibility/         #   FIFA Art. 6/7/8 rules engine
-│   ├── models/               #   Pydantic schema + SQLAlchemy persistence (player_records.py)
-│   └── similarity/           #   Similarity pipeline wiring persistence to the ML layer
-├── ml/                      # Machine learning pipeline
-│   ├── features/            #   z-score normalization
-│   └── models/               #   k-NN / cosine similarity engine
-├── scrapers/                # Data ingestion (BFL squads, FBref, diaspora)
-├── frontend/                # React + Vite + Tailwind scouting dashboard
-│   └── src/
-│       ├── api/              #   Typed fetch client
-│       ├── components/       #   Avatar, FilterBar, PlayerCard, TacticalRadar, ...
-│       └── pages/             #   SearchPage, ProfilePage, EligibilityPage
-├── openspec/                # Spec-driven change proposals, specs, and design docs
-│   ├── specs/                #   Current behavior contracts per capability
-│   └── changes/archive/      #   Completed, archived change proposals
-├── data/                    # Raw scraped data + processed DB (gitignored)
-├── scripts/                 # Scraper orchestration entrypoint
-├── tests/                   # pytest suites (backend, scrapers, ml)
-├── .github/workflows/       # CI pipeline
-├── pyproject.toml           # Python packaging
-├── Dockerfile               # Container image
-└── docker-compose.yml       # Local orchestration
+## Weekly refresh
+
+The deployment environment owns scheduling. For example, this crontab entry refreshes at 03:00
+Monday in the server’s configured timezone:
+
+```cron
+0 3 * * 1 cd /absolute/path/BFF-Football && .venv/bin/python -m scripts.run_scrapers >> /absolute/path/scouting-refresh.log 2>&1
 ```
 
----
+Ensure the scheduler has source access, Chrome if requesting FBref, and the correct environment.
+The process exits non-zero when any source fails and logs a per-source summary. A sample setting
+in `.env` does not install a scheduler automatically.
 
-## 📊 API Endpoints
+## Validate
 
-| Method | Path | Description |
-|:--|:--|:--|
-| `GET` | `/health` | Health check |
-| `GET` | `/api/v1/players` | Multi-variable player search (age, position, foot, value, diaspora eligibility) |
-| `GET` | `/api/v1/players/{id}` | Single player detail lookup |
-| `GET` | `/api/v1/players/{id}/similar` | Top-K tactically similar players |
-| `POST` | `/api/v1/players/{id}/eligibility` | FIFA eligibility status evaluation |
+```sh
+.venv/bin/ruff check .
+.venv/bin/pytest
+npm run lint --prefix frontend
+npm test --prefix frontend
+npm run build --prefix frontend
+cd frontend
+npx playwright install chromium
+npm run test:e2e
+```
 
----
+Browser tests start an isolated local server on port 8015 and seed `data/processed/e2e.db`.
+They cover discovery, URL filters, paging, shortlist persistence, profile/report export, eligibility,
+error recovery and 360px mobile navigation. One external FBref integration test skips when source
+access is unavailable. In restricted environments with unrelated pytest plugins, use
+`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/pytest`.
 
-## 📐 Spec-Driven Development
+## Project and specifications
 
-This project uses [OpenSpec](openspec/) for planning: every change is proposed as a spec delta, design doc, and task list before implementation, then archived with its spec synced into [`openspec/specs/`](openspec/specs/) — the current source of truth for each capability's behavior.
+- `backend/`: API, database, screening, similarity and report generation.
+- `frontend/`: accessible responsive workspace, local fonts/icons and browser tests.
+- `scrapers/`, `scripts/`, `ml/`: ingestion, maintenance and tactical ranking.
+- `specs/001-complete-scouting-workspace/`: active Spec Kit specification, plan, tasks and verification.
+- `.specify/`: official Spec Kit 1.2.4 templates, commands and project constitution.
+- `openspec/`: preserved prior change history and behavior specifications.
+- `PRD.md`: original product brief; `PRODUCT.md`: current product context; `DESIGN.md`: design system.
 
-| Capability | Covers | Spec |
-|:--|:--|:--|
-| **player-data-ingestion** | Scraper sourcing rules, rate limits, failure isolation | `openspec/specs/player-data-ingestion/` |
-| **player-records** | Persistence semantics (partial records, upserts) | `openspec/specs/player-records/` |
-| **fifa-eligibility** | Art. 6/7/8 evaluation rules | `openspec/specs/fifa-eligibility/` |
-| **player-search** | Search/filter and detail lookup behavior | `openspec/specs/player-search/` |
-| **tactical-similarity** | Similarity ranking rules and edge cases | `openspec/specs/tactical-similarity/` |
-| **scouting-dashboard** | Frontend user-facing behavior | `openspec/specs/scouting-dashboard/` |
+The new delivery follows Spec Kit’s constitution → specification → plan → tasks → implementation
+→ convergence workflow. Original numbered specifications remain a historical PRD traceability index;
+the completion specification documents current decisions and acceptance evidence.
 
----
+## Open-source assets
 
-## 🤝 Contributing
-
-This project is in active development. Contributions, bug reports, and feature ideas are welcome!
-
-1. Check [`openspec/specs/`](openspec/specs/) for current behavior contracts and [open issues](https://github.com/kowshikjawad/BFF_Scouting/issues)
-2. Fork the repo and create a feature branch
-3. Run `pytest`, `ruff check .`, and (if touching the frontend) `npm run build` before opening a PR
-4. Open a pull request against `master`
-
----
-
-## 📄 License
-
-[MIT](LICENSE) — free to use, modify, and distribute.
-
----
-
-<p align="center">
-  <sub>Made with ❤️ for the Bangladesh Football Federation & the future of Bangladeshi football scouting 🇧🇩</sub>
-</p>
+[Lucide icons](https://lucide.dev/license) (ISC / inherited Feather MIT),
+[Inter](https://rsms.me/inter/) and [Space Grotesk](https://github.com/floriankarsten/space-grotesk)
+(SIL OFL) are self-hosted. Bitstream Vera is embedded in PDF reports through ReportLab. Full license
+notices ship in `frontend/public/licenses/`. Player avatars use generated initials. No stock or AI
+photo is presented as an actual player. Project code is licensed under [MIT](LICENSE).

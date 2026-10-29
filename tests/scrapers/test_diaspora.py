@@ -1,4 +1,5 @@
 """Tests for the diaspora reference-data loader (FR-1.1)."""
+
 from __future__ import annotations
 
 import socket
@@ -37,3 +38,8 @@ def test_no_network_request_is_made(monkeypatch: pytest.MonkeyPatch):
 
     records = scrape_diaspora_listings()
     assert len(records) == 6
+
+
+def test_roster_refresh_does_not_supply_missing_tactical_defaults():
+    records = scrape_diaspora_listings()
+    assert all("goals_per_90" not in record for record in records)

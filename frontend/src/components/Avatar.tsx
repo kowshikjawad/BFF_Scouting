@@ -4,7 +4,7 @@ export function Avatar({ id, name, size = 44 }: { id: string; name: string; size
   const color = avatarColor(id);
   return (
     <div
-      className="flex shrink-0 items-center justify-center rounded-[6px] font-display font-semibold"
+      className="flex shrink-0 items-center justify-center rounded-control font-display font-semibold"
       style={{
         width: size,
         height: size,

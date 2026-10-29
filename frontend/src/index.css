@@ -1,132 +1,387 @@
 @import "tailwindcss";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/space-grotesk/500.css";
-@import "@fontsource/space-grotesk/600.css";
-@import "@fontsource/space-grotesk/700.css";
+@import "@fontsource/inter/latin-400.css";
+@import "@fontsource/inter/latin-500.css";
+@import "@fontsource/inter/latin-600.css";
+@import "@fontsource/space-grotesk/latin-500.css";
+@import "@fontsource/space-grotesk/latin-600.css";
+@import "@fontsource/space-grotesk/latin-700.css";
 
 @theme {
   --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-sans: "Inter", system-ui, sans-serif;
+  --color-shell: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f0f4f1;
+  --color-border: #e4e9e6;
+  --color-border-strong: #cbd5ce;
+  --color-ink: #1c3027;
+  --color-ink-muted: #617069;
+  --color-ink-faint: #6c7972;
+  --color-pitch: #176448;
+  --color-pitch-strong: #104d36;
+  --color-pitch-deep: #0c2e22;
+  --color-pitch-tint: #eaf3ed;
+  --color-on-pitch: #f3f8f5;
+  --color-on-pitch-muted: #a9c7ba;
+  --color-gold: #916a21;
+  --color-gold-tint: #fbf4e4;
+  --color-eligible: #176448;
+  --color-documentation: #916a21;
+  --color-ineligible: #b44343;
 
-  /* Shell: near-black charcoal, not pure black -- a broadcast-graphics
-     ground, not a terminal. */
-  --color-shell: #0b0e11;
-  --color-surface: #12161b;
-  --color-surface-raised: #181d23;
-  --color-border: #262c34;
-  --color-border-strong: #333b45;
+  /* Shared gold "notice" treatment -- demo banners, legacy-ruleset asides.
+     One set of tones, reused everywhere instead of hand-typed near-duplicates. */
+  --color-notice: #faf8ee;
+  --color-notice-border: #e3d9b8;
+  --color-notice-ink: #6b5a26;
 
-  --color-ink: #e9edf1;
-  --color-ink-muted: #9aa5b1;
-  /* #7b8794, not the darker slate first tried: that one measured ~3.3:1
-     against the shell, under the 4.5:1 floor for the small captions this
-     token is actually used for. This measures ~5.3:1. */
-  --color-ink-faint: #7b8794;
+  /* Chart lines (Recharts needs literal color values, not utility classes --
+     reference these vars directly in stroke/fill props to keep one source of truth). */
+  --color-chart-grid: #dce5df;
+  --color-chart-cohort: #9daea2;
 
-  /* Primary accent: pitch green. Carries primary actions, links, the
-     radar chart's signature ring. */
-  --color-pitch: #22c55e;
-  --color-pitch-strong: #16a34a;
-  --color-pitch-tint: #0f2518;
+  --color-table-head: #fafbf9;
 
-  /* Secondary accent: "shonar" gold -- eligibility/highlight only. */
-  --color-gold: #d4a24c;
-  --color-gold-tint: #2a2114;
-
-  /* Semantic state colors double as brand (green/gold/red). */
-  --color-eligible: #22c55e;
-  --color-documentation: #d4a24c;
-  --color-ineligible: #ef4444;
-
-  --radius-token: 6px;
+  /* Two-tier radius system: controls (buttons, inputs, chips-in-a-row) and
+     panels (cards, sections). Avatars/dots/pills use rounded-full instead. */
+  --radius-control: 7px;
+  --radius-panel: 10px;
 }
-
-html {
-  color-scheme: dark;
+:root {
+  color-scheme: light;
+  font-synthesis: none;
 }
-
 body {
-  background-color: var(--color-shell);
+  margin: 0;
+  background: var(--color-shell);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
-
-::selection {
-  background-color: var(--color-pitch-strong);
-  color: #061009;
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
-
-:focus-visible {
-  outline: 2px solid var(--color-pitch);
-  outline-offset: 2px;
-}
-
-input[type="number"],
-input[type="text"],
-input[type="search"],
+button,
+a,
+input,
 select {
-  background-color: var(--color-surface-raised);
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+select {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+button,
+a {
+  transition:
+    background-color 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+:focus-visible {
+  outline: 3px solid #5e9879;
+  outline-offset: 3px;
+}
+::selection {
+  background: #d5e9dc;
+}
+input:not([type="checkbox"]),
+select,
+textarea {
+  min-height: 40px;
+  background: white;
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-token);
-  padding: 0.375rem 0.625rem;
-  font-size: 0.875rem;
+  border-radius: var(--radius-control);
+  padding: 8px 11px;
+  color: var(--color-ink);
+  min-width: 0;
+  max-width: 100%;
+  font-size: 13px;
+}
+input::placeholder {
+  color: #78837d;
+}
+input[type="checkbox"] {
+  accent-color: var(--color-pitch);
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
+  background: white;
+  color: var(--color-ink);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.btn:hover {
+  background: #f1f5f2;
+  border-color: #b8c8bd;
+}
+.btn-primary {
+  background: var(--color-pitch);
+  border-color: var(--color-pitch);
+  color: white;
+}
+.btn-primary:hover {
+  background: var(--color-pitch-strong);
+  color: white;
+}
+.icon-button {
+  display: inline-flex;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+  color: var(--color-ink-muted);
+  flex-shrink: 0;
+}
+.icon-button:hover {
+  background: var(--color-pitch-tint);
+  color: var(--color-pitch);
+}
+.eyebrow {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+.panel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-panel);
+  background: white;
+}
+/* Elevation signals interactivity, not decoration: only a surface you can act
+   on lifts, and only on hover/focus -- static information stays flat. */
+.panel-interactive {
+  transition:
+    box-shadow 0.15s,
+    border-color 0.15s;
+}
+.panel-interactive:hover,
+.panel-interactive:focus-within {
+  border-color: var(--color-border-strong);
+  box-shadow:
+    0px 2px 3px -1px rgba(0, 0, 0, 0.06),
+    0px 1px 0px 0px rgba(25, 28, 33, 0.02),
+    0px 0px 0px 1px rgba(25, 28, 33, 0.03);
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+}
+.hero-band {
+  background: var(--color-pitch-deep);
+  border-radius: var(--radius-panel);
+  color: var(--color-on-pitch);
+  position: relative;
+  overflow: hidden;
+}
+.page-description {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  line-height: 1.7;
+}
+.sidebar {
+  width: 226px;
+  position: fixed;
+  inset: 0 auto 0 0;
+  background: #fff;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 30;
+}
+.workspace {
+  margin-left: 226px;
+  min-height: 100vh;
+}
+.topbar {
+  height: 72px;
+  border-bottom: 1px solid var(--color-border);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 36px;
+}
+.main-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 36px;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 14px;
+  margin: 4px 0;
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--color-ink-muted);
+  text-decoration: none;
+}
+.nav-link:hover {
+  background: #f6f8f6;
   color: var(--color-ink);
 }
-
-input[type="number"]::placeholder,
-input[type="text"]::placeholder {
-  color: var(--color-ink-faint);
+.nav-link.active {
+  background: var(--color-pitch-tint);
+  color: var(--color-pitch);
+  font-weight: 600;
 }
-
-input[type="number"]:focus,
-input[type="text"]:focus,
-input[type="search"]:focus,
-select:focus {
-  border-color: var(--color-pitch);
+.player-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
 }
-
-/* Firefox hides the up/down spinner with this; keep it clean and consistent
-   with the rest of the system across browsers rather than relying on each
-   engine's own default affordance. */
-input[type="number"] {
-  -moz-appearance: textfield;
+.player-table th {
+  background: var(--color-table-head);
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-ink-muted);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  margin: 0;
+.player-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #edf0ed;
 }
-
-* {
-  scrollbar-color: var(--color-border-strong) var(--color-shell);
-  scrollbar-width: thin;
+.player-table tr:last-child td {
+  border-bottom: 0;
 }
-
-@media print {
-  body * {
+.player-table tbody tr:hover {
+  background: #fafcf9;
+}
+.player-name {
+  font-weight: 600;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+.player-name:hover {
+  color: var(--color-pitch);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.stat {
+  border-right: 1px solid var(--color-border);
+  padding: 0 28px;
+}
+.stat:first-child {
+  padding-left: 0;
+}
+.stat:last-child {
+  border-right: 0;
+}
+.skeleton {
+  animation: pulse 1.5s ease-in-out infinite;
+  background: #edf1ed;
+  border-radius: 5px;
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+.skip-link {
+  position: fixed;
+  top: -60px;
+  left: 12px;
+  z-index: 100;
+  padding: 10px;
+  background: white;
+}
+.skip-link:focus {
+  top: 10px;
+}
+@media (max-width: 1150px) {
+  .main-content {
+    padding: 28px;
+  }
+  .topbar {
+    padding: 0 28px;
+  }
+  .secondary-column {
+    display: none;
+  }
+}
+@media (max-width: 800px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.2s;
+    width: 250px;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .workspace {
+    margin-left: 0;
+  }
+  .topbar {
+    height: 64px;
+    padding: 0 20px;
+  }
+  .main-content {
+    padding: 26px 20px;
+  }
+  .stat {
+    padding: 0 18px;
+  }
+}
+@media (max-width: 540px) {
+  .page-title {
+    font-size: 28px;
+  }
+  .main-content {
+    padding: 24px 16px;
+  }
+  .stat {
+    padding: 0 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media (max-width: 800px) {
+  .sidebar {
     visibility: hidden;
   }
-  #print-root,
-  #print-root * {
+  .sidebar.open {
     visibility: visible;
   }
-  #print-root {
-    position: absolute;
-    inset: 0;
-    /* A printed scout summary reads on paper, not a monitor -- flip the
-       shell's dark palette to a light one for this one element rather
-       than printing a full-bleed near-black page. */
-    --color-shell: #ffffff;
-    --color-surface: #ffffff;
-    --color-surface-raised: #f3f4f6;
-    --color-border: #d1d5db;
-    --color-border-strong: #9ca3af;
-    --color-ink: #0b0e11;
-    --color-ink-muted: #4b5563;
-    --color-ink-faint: #6b7280;
-    background: var(--color-shell);
-    color: var(--color-ink);
+}
+@media (min-width: 801px) {
+  .mobile-only {
+    display: none;
   }
 }

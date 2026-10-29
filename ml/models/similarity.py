@@ -3,6 +3,7 @@
 Takes normalized vectors and returns the top-K most similar players
 with percentage similarity scores.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -21,7 +22,9 @@ class SimilarityEngine:
         self._nn.fit(vectors)
         return self
 
-    def query(self, vector: np.ndarray, exclude_index: int | None = None) -> list[tuple[int, float]]:
+    def query(
+        self, vector: np.ndarray, exclude_index: int | None = None
+    ) -> list[tuple[int, float]]:
         """Return [(index, similarity_pct), ...] for the top_K most similar players.
 
         ``exclude_index`` drops the self-match when the query point is part of
@@ -33,6 +36,6 @@ class SimilarityEngine:
         for dist, idx in zip(distances[0], indices[0]):
             if exclude_index is not None and int(idx) == exclude_index:
                 continue
-            similarity = max(0.0, 1.0 - float(dist)) * 100.0
+            similarity = min(1.0, max(0.0, 1.0 - float(dist))) * 100.0
             results.append((int(idx), similarity))
         return results[: self._top_k]

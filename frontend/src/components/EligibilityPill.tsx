@@ -1,26 +1,20 @@
 import type { EligibilityStatus } from "../api/types";
-
-const STYLES: Record<EligibilityStatus, { color: string; bg: string; label: string }> = {
-  "ELIGIBLE & CLEARED": { color: "#22c55e", bg: "#22c55e1f", label: "Eligible" },
-  "DOCUMENTATION REQUIRED": { color: "#d4a24c", bg: "#d4a24c1f", label: "Docs required" },
-  INELIGIBLE: { color: "#ef4444", bg: "#ef44441f", label: "Ineligible" },
+const STYLES: Record<EligibilityStatus, { style: string; label: string }> = {
+  "ELIGIBLE & CLEARED": { style: "text-pitch bg-pitch-tint", label: "Eligible" },
+  "DOCUMENTATION REQUIRED": { style: "text-gold bg-gold-tint", label: "Needs documents" },
+  INELIGIBLE: { style: "text-ineligible bg-red-50", label: "Ineligible" },
 };
-
 export function EligibilityPill({ status }: { status: EligibilityStatus | null }) {
-  if (!status) {
-    return (
-      <span className="rounded-[6px] border border-border px-2 py-0.5 text-xs text-ink-faint">
-        Not assessed
-      </span>
-    );
-  }
-  const style = STYLES[status];
+  const item = status
+    ? STYLES[status]
+    : { style: "text-ink-muted bg-surface-raised", label: "Not assessed" };
   return (
     <span
-      className="rounded-[6px] px-2 py-0.5 text-xs font-medium"
-      style={{ color: style.color, backgroundColor: style.bg }}
+      title={status ?? "No recorded eligibility assessment"}
+      className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded px-2 py-1 text-[10px] font-medium ${item.style}`}
     >
-      {style.label}
+      <span className="h-1 w-1 rounded-full bg-current" />
+      {item.label}
     </span>
   );
 }

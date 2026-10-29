@@ -5,6 +5,7 @@ feed for "Bangladeshi diaspora player," so this loads a hand-maintained,
 version-controlled seed file (FR-1.1) instead of making any network
 request.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -33,7 +34,9 @@ def scrape_diaspora_listings(seed_path: Path = SEED_PATH) -> list[dict[str, Any]
             key: value for key, value in entry.items() if key not in ("notes", "last_verified_date")
         }
         validated = Player(**player_fields)
-        record = validated.model_dump()
+        # A roster refresh must not erase tactical metrics collected by another source.
+        record = validated.model_dump(exclude_unset=True)
+        record.pop("data_source", None)
         record["last_verified_date"] = entry["last_verified_date"]
         records.append(record)
     return records

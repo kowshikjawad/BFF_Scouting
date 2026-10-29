@@ -9,6 +9,7 @@ still persist") -- each source's successful results are persisted
 immediately, and failures from any source are collected and reported
 together rather than aborting the whole run.
 """
+
 from __future__ import annotations
 
 import logging
@@ -54,6 +55,7 @@ def run(session: Session | None = None) -> dict[str, Any]:
         diaspora_records = scrape_diaspora_listings()
         persisted["diaspora"] = _persist(session, diaspora_records)
     except Exception as exc:
+        session.rollback()
         logger.exception("diaspora source failed")
         errors["diaspora"] = str(exc)
 
@@ -61,6 +63,7 @@ def run(session: Session | None = None) -> dict[str, Any]:
         bpl_records = scrape_bpl_squads()
         persisted["bpl"] = _persist(session, bpl_records)
     except Exception as exc:
+        session.rollback()
         logger.exception("bpl source failed")
         errors["bpl"] = str(exc)
 
@@ -72,6 +75,7 @@ def run(session: Session | None = None) -> dict[str, Any]:
         fbref_updates = scrape_fbref_backfill(diaspora_records)
         persisted["fbref"] = _persist(session, fbref_updates)
     except Exception as exc:
+        session.rollback()
         logger.exception("fbref source failed")
         errors["fbref"] = str(exc)
 

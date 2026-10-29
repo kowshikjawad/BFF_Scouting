@@ -1,7 +1,8 @@
 """Tactical similarity endpoints — FR-3.2 / FR-3.3."""
+
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -21,7 +22,9 @@ class SimilarityResult(BaseModel):
 
 @router.get("/players/{player_id}/similar", response_model=list[SimilarityResult])
 async def similar_players(
-    player_id: str, top_k: int = 5, session: Session = Depends(get_session)  # noqa: B008
+    player_id: str,
+    top_k: int = Query(default=5, ge=1, le=50),
+    session: Session = Depends(get_session),  # noqa: B008
 ) -> list[SimilarityResult]:
     """Return top-K similar players for a reference player (FR-3.2 / FR-3.3).
 
@@ -34,6 +37,11 @@ async def similar_players(
     try:
         matches = rank_similar(session, player_id, top_k=top_k)
     except PlayerNotFoundError:
-        raise HTTPException(status_code=404, detail=f"No player found with id {player_id!r}") from None
+        raise HTTPException(
+            status_code=404, detail=f"No player found with id {player_id!r}"
+        ) from None
 
-    return [SimilarityResult(player_id=m.player_id, name=m.name, similarity_score=m.similarity_score) for m in matches]
+    return [
+        SimilarityResult(player_id=m.player_id, name=m.name, similarity_score=m.similarity_score)
+        for m in matches
+    ]

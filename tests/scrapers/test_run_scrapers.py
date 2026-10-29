@@ -1,4 +1,5 @@
 """Tests for the scraper orchestration script (FR-1.1 failure isolation)."""
+
 from __future__ import annotations
 
 import pytest
@@ -24,7 +25,9 @@ def test_one_source_failing_does_not_block_the_others(monkeypatch: pytest.Monkey
     monkeypatch.setattr(
         run_scrapers_module,
         "scrape_diaspora_listings",
-        lambda: [{"id": "p1", "name": "Diaspora Player", "age": 25, "position": "MF", "league_band": "X"}],
+        lambda: [
+            {"id": "p1", "name": "Diaspora Player", "age": 25, "position": "MF", "league_band": "X"}
+        ],
     )
 
     def _fail_bpl():
@@ -45,7 +48,9 @@ def test_summary_reports_both_successes_and_failures(monkeypatch: pytest.MonkeyP
     monkeypatch.setattr(
         run_scrapers_module,
         "scrape_bpl_squads",
-        lambda: [{"id": "p2", "name": "Domestic Player", "age": 21, "position": "DF", "league_band": "Y"}],
+        lambda: [
+            {"id": "p2", "name": "Domestic Player", "age": 21, "position": "DF", "league_band": "Y"}
+        ],
     )
 
     def _fail_fbref(tracked):
@@ -58,3 +63,17 @@ def test_summary_reports_both_successes_and_failures(monkeypatch: pytest.MonkeyP
     assert summary["persisted"]["bpl"] == 1
     assert "fbref" in summary["errors"]
     assert get_player(session, "p2")["name"] == "Domestic Player"
+
+
+def test_database_write_failure_rolls_back_before_next_source(monkeypatch, session):
+    monkeypatch.setattr(run_scrapers_module, "scrape_diaspora_listings", lambda: [{"id": None}])
+    monkeypatch.setattr(
+        run_scrapers_module,
+        "scrape_bpl_squads",
+        lambda: [{"id": "survivor", "name": "Surviving source"}],
+    )
+    monkeypatch.setattr(run_scrapers_module, "scrape_fbref_backfill", lambda tracked: [])
+    summary = run(session=session)
+    assert "diaspora" in summary["errors"]
+    assert summary["persisted"]["bpl"] == 1
+    assert get_player(session, "survivor")["name"] == "Surviving source"

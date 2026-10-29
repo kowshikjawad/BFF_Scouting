@@ -1,8 +1,10 @@
 """SQLAlchemy engine/session bound to `settings.database_url` (FR-1.2)."""
+
 from __future__ import annotations
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from pathlib import Path
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
@@ -15,7 +17,9 @@ class Base(DeclarativeBase):
 
 
 def _make_engine():
-    connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+    connect_args = (
+        {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+    )
     return create_engine(settings.database_url, connect_args=connect_args)
 
 
@@ -25,6 +29,8 @@ SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
 def init_db() -> None:
     """Create all tables that don't already exist."""
+    if engine.url.drivername.startswith("sqlite") and engine.url.database not in (None, ":memory:"):
+        Path(engine.url.database).parent.mkdir(parents=True, exist_ok=True)
     Base.metadata.create_all(bind=engine)
 
 

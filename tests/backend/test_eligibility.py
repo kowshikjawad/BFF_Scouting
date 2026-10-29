@@ -1,4 +1,5 @@
 """Tests for FR-2.1 / FR-2.2 eligibility rules (Art. 6/7/8)."""
+
 from __future__ import annotations
 
 from backend.eligibility.engine import EligibilityInput, NationalityPath, Status, evaluate
@@ -143,7 +144,7 @@ def test_prior_senior_caps_with_approved_switch_is_cleared():
     assert result.status is Status.ELIGIBLE
 
 
-def test_prior_youth_only_caps_do_not_trigger_article8():
+def test_prior_youth_caps_require_association_review():
     result = evaluate(
         EligibilityInput(
             born_in_territory=True,
@@ -151,5 +152,5 @@ def test_prior_youth_only_caps_do_not_trigger_article8():
             has_youth_caps_other_association=True,
         )
     )
-    assert result.article8_switch_required is False
-    assert result.status is Status.ELIGIBLE
+    assert result.article8_switch_required is True
+    assert result.status is Status.DOCUMENTATION

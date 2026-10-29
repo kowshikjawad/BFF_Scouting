@@ -1,0 +1,13 @@
+ShonarTalent AI - open-source visual assets
+
+Lucide React icons: https://lucide.dev/ (ISC and inherited Feather MIT)
+Full license: /licenses/LUCIDE.txt
+Inter font by Rasmus Andersson: https://rsms.me/inter/ (SIL OFL 1.1)
+Full license: /licenses/INTER.txt
+Space Grotesk by Florian Karsten: https://github.com/floriankarsten/space-grotesk (SIL OFL 1.1)
+Full license: /licenses/SPACE-GROTESK.txt
+
+Fonts and icons are bundled locally. Player avatars are generated initials,
+not photographs. Layout, tokens and brand composition are original project code.
+PDF reports embed Bitstream Vera from ReportLab (Bitstream Vera license).
+Full license: /licenses/BITSTREAM-VERA.txt

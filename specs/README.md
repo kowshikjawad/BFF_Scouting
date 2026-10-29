@@ -24,3 +24,11 @@ mapping stays consistent.
 | NFR-port | Docker containerised | Infra | `Dockerfile`, `docker-compose.yml` | — |
 
 See the numbered spec files below for acceptance criteria per module.
+## Active completion specification (2026-10-28)
+
+New work is governed by [001-complete-scouting-workspace/spec.md](001-complete-scouting-workspace/spec.md),
+with its plan, contracts, tasks and verification. It supersedes the original UI placeholders and
+global-average approximation while retaining the original PRD requirement IDs and OpenSpec history.
+
+The authorized fictional-data extension is specified in [002-synthetic-demo/spec.md](002-synthetic-demo/spec.md).
+It adds an explicitly labelled demo without changing sourced real-player facts.

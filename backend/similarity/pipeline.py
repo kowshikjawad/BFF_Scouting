@@ -5,6 +5,7 @@ live dataset is small enough (~100s of rows) that an in-memory fit is far
 under the 500ms NFR budget, and a background-refreshed index would be
 premature complexity at this scale.
 """
+
 from __future__ import annotations
 
 import warnings
@@ -14,6 +15,7 @@ import numpy as np
 from sqlalchemy.orm import Session
 
 from backend.models.player_records import get_player, list_players
+from backend.models.provenance import data_source
 from ml.features.normalize import TACTICAL_METRICS, MetricNormalizer
 from ml.models.similarity import SimilarityEngine
 
@@ -76,7 +78,7 @@ def rank_similar(session: Session, player_id: str, top_k: int = 5) -> list[Simil
     if not _has_any_metric(reference):
         return []
 
-    pool = [p for p in list_players(session) if _has_any_metric(p)]
+    pool = [p for p in list_players(session, dataset=data_source(player_id)) if _has_any_metric(p)]
     others = [p for p in pool if p["id"] != player_id]
     if not others:
         return []

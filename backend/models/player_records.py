@@ -6,12 +6,14 @@ scraper that only has a tactical metric for a player not yet fully
 profiled), and an unsupplied field must read back as absent, not a
 fabricated default.
 """
+
 from __future__ import annotations
 
-from sqlalchemy import Float, Integer, String, select
+from sqlalchemy import Float, Integer, String, func, or_, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from backend.models.db import Base
+from backend.models.provenance import SYNTHETIC_PREFIX, Dataset
 from ml.features.normalize import TACTICAL_METRICS
 
 
@@ -88,6 +90,10 @@ def list_players(
     strong_foot: str | None = None,
     max_value_eur: float | None = None,
     diaspora_eligible: bool | None = None,
+    q: str | None = None,
+    eligibility_status: str | None = None,
+    sort: str = "name",
+    dataset: Dataset = "real",
 ) -> list[dict[str, object]]:
     """List stored players matching every supplied filter (FR-4.2).
 
@@ -98,11 +104,36 @@ def list_players(
     boolean (design.md decision #2).
     """
     query = select(PlayerORM)
+    generated = PlayerORM.id.startswith(SYNTHETIC_PREFIX, autoescape=True)
+    query = query.where(generated if dataset == "synthetic" else ~generated)
+
+    if q and q.strip():
+        query = query.where(PlayerORM.name.icontains(q.strip(), autoescape=True))
 
     if max_age is not None:
         query = query.where(PlayerORM.age.isnot(None), PlayerORM.age <= max_age)
     if position is not None:
-        query = query.where(PlayerORM.position == position)
+        aliases = {
+            "GK": ["GK", "Goalkeeper"],
+            "CB": ["CB", "Centre-Back", "Center-Back"],
+            "LB": ["LB", "Left-Back"],
+            "RB": ["RB", "Right-Back"],
+            "DM": ["DM", "Defensive Midfielder", "Defensive Midfield"],
+            "CM": ["CM", "Midfielder", "Central Midfield"],
+            "AM": ["AM", "Attacking Midfield", "Attacking Midfielder"],
+            "LW": ["LW", "Left Winger"],
+            "RW": ["RW", "Right Winger"],
+            "ST": ["ST", "CF", "Forward", "Centre-Forward", "Striker"],
+        }
+        normalized = "/" + func.replace(func.lower(PlayerORM.position), " ", "") + "/"
+        query = query.where(
+            or_(
+                *[
+                    normalized.contains(f"/{alias.lower().replace(' ', '')}/", autoescape=True)
+                    for alias in aliases.get(position.upper(), [position])
+                ]
+            )
+        )
     if strong_foot is not None:
         query = query.where(PlayerORM.strong_foot == strong_foot)
     if max_value_eur is not None:
@@ -117,6 +148,19 @@ def list_players(
             (PlayerORM.ancestry_eligibility != _DIASPORA_ELIGIBLE_STATUS)
             | (PlayerORM.ancestry_eligibility.is_(None))
         )
+
+    if eligibility_status == "NOT_ASSESSED":
+        query = query.where(PlayerORM.ancestry_eligibility.is_(None))
+    elif eligibility_status:
+        query = query.where(PlayerORM.ancestry_eligibility == eligibility_status)
+
+    if sort == "age_asc":
+        query = query.order_by(PlayerORM.age.is_(None), PlayerORM.age.asc())
+    elif sort == "value_desc":
+        query = query.order_by(
+            PlayerORM.estimated_value_eur.is_(None), PlayerORM.estimated_value_eur.desc()
+        )
+    query = query.order_by(func.lower(PlayerORM.name), PlayerORM.id)
 
     records = session.execute(query).scalars().all()
     return [
