@@ -14,7 +14,7 @@ from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from backend.models.db import Base
 from backend.models.provenance import SYNTHETIC_PREFIX, Dataset
-from ml.features.normalize import TACTICAL_METRICS
+from ml.features.normalize import REFERENCE_METRICS, TACTICAL_METRICS
 
 
 class PlayerORM(Base):
@@ -33,17 +33,30 @@ class PlayerORM(Base):
     estimated_value_eur: Mapped[float | None] = mapped_column(Float, nullable=True)
     ancestry_eligibility: Mapped[str | None] = mapped_column(String, nullable=True)
 
-    # Tactical per-90 metrics (FR-3.1 keys from ml.features.normalize).
+    # Tactical per-90 metrics (FR-3.1 keys from ml.features.normalize) -- the
+    # radar/similarity comparison vector.
     goals_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
+    assists_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
     key_passes_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
     progressive_carries_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
+    dribbles_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
     tackles_won_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
+    interceptions_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
     aerial_duel_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    # Reference stats (not part of the radar/similarity vector).
+    shots_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
+    shot_accuracy_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+    pass_completion_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+    clearances_per_90: Mapped[float | None] = mapped_column(Float, nullable=True)
+    minutes_played: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    appearances: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
 
 VALID_PLAYER_FIELDS = {c.name for c in PlayerORM.__table__.columns if c.name != "id"}
 
 assert set(TACTICAL_METRICS).issubset(VALID_PLAYER_FIELDS)
+assert set(REFERENCE_METRICS).issubset(VALID_PLAYER_FIELDS)
 
 
 def upsert_player(session: Session, player_id: str, **fields: object) -> PlayerORM:

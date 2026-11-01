@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { searchPlayers } from "../api/client";
-import type { SearchFilters } from "../api/types";
+import { TACTICAL_METRICS, type SearchFilters } from "../api/types";
 import { useResource } from "../hooks/useResource";
 import { useDataset, sourceFromId } from "../lib/dataset-context";
 import { useShortlist } from "../lib/shortlist-context";
@@ -104,14 +104,7 @@ export function SearchPage({ shortlist = false }: { shortlist?: boolean }) {
             label="Tactical coverage"
             value={
               inventory.data
-                ? all.filter(
-                    (p) =>
-                      p.goals_per_90 != null ||
-                      p.key_passes_per_90 != null ||
-                      p.progressive_carries_per_90 != null ||
-                      p.tackles_won_per_90 != null ||
-                      p.aerial_duel_pct != null,
-                  ).length
+                ? all.filter((p) => TACTICAL_METRICS.some((metric) => p[metric] != null)).length
                 : undefined
             }
           />
@@ -163,7 +156,9 @@ export function SearchPage({ shortlist = false }: { shortlist?: boolean }) {
             <SlidersHorizontal size={14} />
             Filters
             {filterCount > 0 && (
-              <span className="rounded bg-pitch px-1.5 text-[10px] text-white">{filterCount}</span>
+              <span className="rounded bg-pitch px-1.5 text-[10px] font-semibold text-[#06120d]">
+                {filterCount}
+              </span>
             )}
           </button>
           <div className="flex rounded-control border border-border p-0.5">
@@ -445,10 +440,12 @@ export function SearchPage({ shortlist = false }: { shortlist?: boolean }) {
 function HeroStat({ label, value }: { label: string; value: number | undefined }) {
   return (
     <div className="border-r border-white/15 pr-10 last:border-r-0 last:pr-0">
-      <p className="text-[10px] text-on-pitch-muted">{label}</p>
-      <p className="mt-1.5 font-display text-[30px] font-medium leading-none tracking-tight text-on-pitch">
+      <p className="text-[10px] font-medium uppercase tracking-[0.1em] text-on-pitch-muted">
+        {label}
+      </p>
+      <p className="mt-1.5 font-display text-[34px] font-semibold leading-none tracking-tight text-on-pitch tabular-nums">
         {value ?? "—"}
-        <span className="ml-2 text-[10px] font-normal tracking-normal text-on-pitch-muted">
+        <span className="ml-2 text-[10px] font-normal normal-case tracking-normal text-on-pitch-muted">
           players
         </span>
       </p>

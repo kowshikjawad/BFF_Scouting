@@ -31,10 +31,19 @@ class Player(BaseModel):
         default=None, description="FR-2.2 status indicator"
     )
     goals_per_90: float | None = None
+    assists_per_90: float | None = None
     key_passes_per_90: float | None = None
     progressive_carries_per_90: float | None = None
+    dribbles_per_90: float | None = None
     tackles_won_per_90: float | None = None
+    interceptions_per_90: float | None = None
     aerial_duel_pct: float | None = None
+    shots_per_90: float | None = None
+    shot_accuracy_pct: float | None = None
+    pass_completion_pct: float | None = None
+    clearances_per_90: float | None = None
+    minutes_played: int | None = None
+    appearances: int | None = None
 
     @computed_field
     @property

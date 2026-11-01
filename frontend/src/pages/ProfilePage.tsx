@@ -8,13 +8,18 @@ import {
   getSimilarPlayers,
   searchPlayers,
 } from "../api/client";
-import { TACTICAL_METRICS, METRIC_LABELS } from "../api/types";
+import {
+  TACTICAL_METRICS,
+  METRIC_LABELS,
+  REFERENCE_METRICS,
+  REFERENCE_METRIC_LABELS,
+} from "../api/types";
 import { Avatar } from "../components/Avatar";
 import { EligibilityPill } from "../components/EligibilityPill";
 import { SaveButton } from "../components/SaveButton";
 import { TacticalRadar } from "../components/TacticalRadar";
 import { SimilarityPanel, type SimilarityState } from "../components/SimilarityPanel";
-import { formatMetric, formatValue } from "../lib/format";
+import { formatMetric, formatReferenceMetric, formatValue } from "../lib/format";
 import { useDataset } from "../lib/dataset-context";
 import { useResource } from "../hooks/useResource";
 export function ProfilePage() {
@@ -103,7 +108,10 @@ function ProfileContent({ id }: { id: string }) {
         </div>
       </div>
       {exportError && (
-        <p role="alert" className="mb-5 rounded-panel bg-red-50 p-3 text-xs text-ineligible">
+        <p
+          role="alert"
+          className="mb-5 rounded-panel bg-ineligible-tint p-3 text-xs text-ineligible"
+        >
           The report could not be downloaded. Please try Export report again.
         </p>
       )}
@@ -152,16 +160,29 @@ function ProfileContent({ id }: { id: string }) {
               Retry comparison data
             </button>
           )}
-          <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {TACTICAL_METRICS.map((metric) => (
               <div key={metric} className="rounded-control border border-border p-3">
                 <dt className="text-[10px] text-ink-muted">{METRIC_LABELS[metric]}</dt>
-                <dd className="mt-2 font-display text-lg font-medium">
+                <dd className="mt-2 font-display text-xl font-medium tabular-nums">
                   {formatMetric(player[metric])}
                 </dd>
               </div>
             ))}
           </dl>
+          <div className="mt-6 border-t border-border pt-5">
+            <p className="eyebrow mb-3">Additional stats</p>
+            <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {REFERENCE_METRICS.map((metric) => (
+                <div key={metric} className="rounded-control bg-surface-raised p-3">
+                  <dt className="text-[10px] text-ink-muted">{REFERENCE_METRIC_LABELS[metric]}</dt>
+                  <dd className="mt-2 font-display text-base font-medium tabular-nums">
+                    {formatReferenceMetric(metric, player[metric])}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </section>
         <div className="space-y-5">
           <section className="panel p-5">

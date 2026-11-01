@@ -2,7 +2,7 @@
 // AI-generated photos are attached to a real player's profile (see
 // PRODUCT.md Capabilities and Constraints).
 
-const PALETTE = ["#32654a", "#5c6d42", "#8a642e", "#446580", "#70557c", "#83535b", "#387477"];
+const PALETTE = ["#4ade80", "#a3e635", "#fbbf24", "#60a5fa", "#c084fc", "#fb7185", "#2dd4bf"];
 
 function hashString(value: string): number {
   let hash = 0;

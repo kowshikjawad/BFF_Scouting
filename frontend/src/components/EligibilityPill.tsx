@@ -2,7 +2,7 @@ import type { EligibilityStatus } from "../api/types";
 const STYLES: Record<EligibilityStatus, { style: string; label: string }> = {
   "ELIGIBLE & CLEARED": { style: "text-pitch bg-pitch-tint", label: "Eligible" },
   "DOCUMENTATION REQUIRED": { style: "text-gold bg-gold-tint", label: "Needs documents" },
-  INELIGIBLE: { style: "text-ineligible bg-red-50", label: "Ineligible" },
+  INELIGIBLE: { style: "text-ineligible bg-ineligible-tint", label: "Ineligible" },
 };
 export function EligibilityPill({ status }: { status: EligibilityStatus | null }) {
   const item = status

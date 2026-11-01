@@ -11,12 +11,13 @@ data/seed/diaspora_players.yaml and scrapers/bpl.py) it is a deliberate,
 documented no-op. See openspec/specs/player-data-ingestion/spec.md and
 design.md decisions #3-#4.
 """
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
-from ml.features.normalize import TACTICAL_METRICS
+from ml.features.normalize import REFERENCE_METRICS, TACTICAL_METRICS
 from scrapers._rate_limiter import SlidingWindowRateLimiter
 
 logger = logging.getLogger(__name__)
@@ -73,6 +74,7 @@ def _fetch_fbref_metrics(competition: str, season: str, player_name: str) -> dic
     fbref = sd.FBref(leagues=competition, seasons=season)
 
     standard = fbref.read_player_season_stats(stat_type="standard")
+    shooting = fbref.read_player_season_stats(stat_type="shooting")
     passing = fbref.read_player_season_stats(stat_type="passing")
     possession = fbref.read_player_season_stats(stat_type="possession")
     defense = fbref.read_player_season_stats(stat_type="defense")
@@ -83,14 +85,36 @@ def _fetch_fbref_metrics(competition: str, season: str, player_name: str) -> dic
         return matches.iloc[0] if len(matches) else None
 
     metrics: dict[str, float] = {}
-    if (row := _row(standard)) is not None and ("Per 90 Minutes", "Gls") in row.index:
-        metrics["goals_per_90"] = float(row[("Per 90 Minutes", "Gls")])
-    if (row := _row(passing)) is not None and ("Per 90 Minutes", "KP") in row.index:
-        metrics["key_passes_per_90"] = float(row[("Per 90 Minutes", "KP")])
-    if (row := _row(possession)) is not None and ("Per 90 Minutes", "PrgC") in row.index:
-        metrics["progressive_carries_per_90"] = float(row[("Per 90 Minutes", "PrgC")])
-    if (row := _row(defense)) is not None and ("Per 90 Minutes", "TklW") in row.index:
-        metrics["tackles_won_per_90"] = float(row[("Per 90 Minutes", "TklW")])
+    if (row := _row(standard)) is not None:
+        if ("Per 90 Minutes", "Gls") in row.index:
+            metrics["goals_per_90"] = float(row[("Per 90 Minutes", "Gls")])
+        if ("Per 90 Minutes", "Ast") in row.index:
+            metrics["assists_per_90"] = float(row[("Per 90 Minutes", "Ast")])
+        if ("Per 90 Minutes", "Sh") in row.index:
+            metrics["shots_per_90"] = float(row[("Per 90 Minutes", "Sh")])
+        if ("Playing Time", "Min") in row.index:
+            metrics["minutes_played"] = float(row[("Playing Time", "Min")])
+        if ("Playing Time", "MP") in row.index:
+            metrics["appearances"] = float(row[("Playing Time", "MP")])
+    if (row := _row(shooting)) is not None and ("Standard", "SoT%") in row.index:
+        metrics["shot_accuracy_pct"] = float(row[("Standard", "SoT%")])
+    if (row := _row(passing)) is not None:
+        if ("Per 90 Minutes", "KP") in row.index:
+            metrics["key_passes_per_90"] = float(row[("Per 90 Minutes", "KP")])
+        if ("Total", "Cmp%") in row.index:
+            metrics["pass_completion_pct"] = float(row[("Total", "Cmp%")])
+    if (row := _row(possession)) is not None:
+        if ("Per 90 Minutes", "PrgC") in row.index:
+            metrics["progressive_carries_per_90"] = float(row[("Per 90 Minutes", "PrgC")])
+        if ("Take-Ons", "Succ") in row.index:
+            metrics["dribbles_per_90"] = float(row[("Take-Ons", "Succ")])
+    if (row := _row(defense)) is not None:
+        if ("Per 90 Minutes", "TklW") in row.index:
+            metrics["tackles_won_per_90"] = float(row[("Per 90 Minutes", "TklW")])
+        if ("Per 90 Minutes", "Int") in row.index:
+            metrics["interceptions_per_90"] = float(row[("Per 90 Minutes", "Int")])
+        if ("Per 90 Minutes", "Clr") in row.index:
+            metrics["clearances_per_90"] = float(row[("Per 90 Minutes", "Clr")])
     if (row := _row(misc)) is not None and "Aerial Duels Won%" in row.index:
         metrics["aerial_duel_pct"] = float(row["Aerial Duels Won%"])
 
@@ -124,7 +148,9 @@ def scrape_fbref_backfill(
         except Exception as exc:  # noqa: BLE001 - surfaced, not evaded
             logger.warning(
                 "FBref fetch failed for %s (%s): %s -- stopping this run, not retrying",
-                player.get("name"), competition, exc,
+                player.get("name"),
+                competition,
+                exc,
             )
             continue
 
@@ -136,8 +162,19 @@ def scrape_fbref_backfill(
 
 assert set(TACTICAL_METRICS) == {
     "goals_per_90",
+    "assists_per_90",
     "key_passes_per_90",
     "progressive_carries_per_90",
+    "dribbles_per_90",
     "tackles_won_per_90",
+    "interceptions_per_90",
     "aerial_duel_pct",
+}
+assert set(REFERENCE_METRICS) == {
+    "shots_per_90",
+    "shot_accuracy_pct",
+    "pass_completion_pct",
+    "clearances_per_90",
+    "minutes_played",
+    "appearances",
 }

@@ -65,7 +65,7 @@ export function SimilarityPanel({ state, onFind }: { state: State; onFind: () =>
           <li key={result.player_id}>
             <Link
               to={`/players/${result.player_id}`}
-              className="flex items-center justify-between rounded-control border border-border bg-surface px-4 py-2.5 text-sm transition-colors hover:border-pitch/60 hover:shadow-[0_1px_2px_rgba(23,100,72,0.08)]"
+              className="flex items-center justify-between rounded-control border border-border bg-surface px-4 py-2.5 text-sm transition-colors hover:border-pitch/60 hover:shadow-[0_0_0_1px_rgba(52,211,153,0.2)]"
             >
               <span className="flex items-center gap-3">
                 <span className="font-display text-xs text-ink-faint">#{i + 1}</span>

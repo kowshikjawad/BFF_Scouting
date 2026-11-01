@@ -17,7 +17,7 @@ export function TacticalRadar({ player, pool }: { player: Player; pool: Player[]
   if (!comparison)
     return (
       <div className="flex min-h-64 flex-col items-center justify-center rounded-panel border border-dashed border-border bg-shell/50 px-7 text-center">
-        <span className="mb-3 rounded-full bg-white p-3 text-pitch">
+        <span className="mb-3 rounded-full bg-pitch-tint p-3 text-pitch">
           <Activity size={22} strokeWidth={1.5} />
         </span>
         <p className="text-sm font-medium">

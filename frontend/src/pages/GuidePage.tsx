@@ -11,10 +11,10 @@ export function GuidePage() {
       <p className="page-description">A practical guide to scouting with ShonarTalent AI.</p>
       <section className="panel relative mt-7 overflow-hidden p-6 sm:p-8">
         <img
-          src="/accents/header-motif.webp"
+          src="/accents/hero-pattern.webp"
           alt=""
           aria-hidden="true"
-          className="pointer-events-none absolute -right-4 -top-10 z-0 hidden h-[180%] w-auto opacity-60 md:block"
+          className="pointer-events-none absolute -right-4 -top-10 z-0 hidden h-[180%] w-auto opacity-30 md:block"
         />
         <div className="relative z-10">
           <h2 className="font-display text-xl font-medium">How the synthetic demo works</h2>
@@ -155,12 +155,12 @@ export function GuidePage() {
           </a>{" "}
           and{" "}
           <a
-            href="https://github.com/floriankarsten/space-grotesk"
+            href="https://github.com/googlefonts/OswaldFont"
             target="_blank"
             rel="noreferrer"
             className="text-pitch underline"
           >
-            Space Grotesk
+            Oswald
           </a>{" "}
           (SIL Open Font License). Fonts and icons are bundled locally.{" "}
           <a href="/licenses/ASSET-CREDITS.txt" className="text-pitch underline">

@@ -241,7 +241,10 @@ export function EligibilityPage() {
               </div>
             </section>
             {error && (
-              <p role="alert" className="rounded-panel bg-red-50 p-3 text-xs text-ineligible">
+              <p
+                role="alert"
+                className="rounded-panel bg-ineligible-tint p-3 text-xs text-ineligible"
+              >
                 {error}
               </p>
             )}

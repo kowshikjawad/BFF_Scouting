@@ -105,16 +105,37 @@ def render_report(player: dict[str, object]) -> bytes:
     text("TACTICAL METRICS", 42, 317, 10, green)
     metrics = [
         ("Goals /90", "goals_per_90"),
+        ("Assists /90", "assists_per_90"),
         ("Key passes /90", "key_passes_per_90"),
         ("Prog. carries /90", "progressive_carries_per_90"),
+        ("Dribbles /90", "dribbles_per_90"),
         ("Tackles won /90", "tackles_won_per_90"),
+        ("Interceptions /90", "interceptions_per_90"),
         ("Aerial duels %", "aerial_duel_pct"),
     ]
     for i, (label, key) in enumerate(metrics):
-        x = 42 + i * 103
-        text(label, x, 290, 7.5, muted)
+        x = 42 + (i % 4) * 128
+        y = 294 - (i // 4) * 32
+        text(label, x, y, 7.5, muted)
         value = player.get(key)
-        text(f"{value:.2f}" if value is not None else "Not recorded", x, 268, 9)
+        text(f"{value:.2f}" if value is not None else "Not recorded", x, y - 13, 9)
+    reference = [
+        ("Shots /90", "shots_per_90"),
+        ("Pass completion %", "pass_completion_pct"),
+        ("Clearances /90", "clearances_per_90"),
+        ("Minutes played", "minutes_played"),
+    ]
+    text("ADDITIONAL STATS", 42, 228, 8, muted)
+    for i, (label, key) in enumerate(reference):
+        x = 42 + i * 128
+        text(label, x, 214, 7, muted)
+        value = player.get(key)
+        formatted = (
+            f"{value:.1f}"
+            if isinstance(value, float)
+            else (str(value) if value is not None else "Not recorded")
+        )
+        text(formatted, x, 202, 8.5)
     paragraph(
         "All tactical values are computer-generated demo figures. They demonstrate the "
         "comparison tools and are not observations or predictions of real performance."
@@ -122,12 +143,12 @@ def render_report(player: dict[str, object]) -> bytes:
         else "Metrics are recorded values, not estimates. Missing coverage does not indicate "
         "poor performance. Similarity depends on the available comparison pool.",
         42,
-        239,
+        183,
         width - 84,
-        9,
+        8,
     )
-    rule(185)
-    text("DATA NOTE", 42, 163, 9, green)
+    rule(150)
+    text("DATA NOTE", 42, 130, 9, green)
     paragraph(
         "This entire profile is synthetic: name, club, age, contract, valuation and metrics. "
         "Generated deterministically for demonstrations; do not use for recruitment decisions."
@@ -136,7 +157,7 @@ def render_report(player: dict[str, object]) -> bytes:
         "club, age and contract details before recruitment decisions. This report is a "
         "snapshot of the local scouting database.",
         42,
-        149,
+        116,
         width - 84,
         9,
     )

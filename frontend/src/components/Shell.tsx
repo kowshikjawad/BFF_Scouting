@@ -127,9 +127,7 @@ export function Shell() {
                 <Icon size={17} strokeWidth={1.7} />
                 <span>{label}</span>
                 {to === "/shortlist" && (
-                  <span className="ml-auto rounded bg-white/70 px-1.5 text-[10px]">
-                    {savedCount}
-                  </span>
+                  <span className="ml-auto rounded bg-chip px-1.5 text-[10px]">{savedCount}</span>
                 )}
               </NavLink>
             ))}
